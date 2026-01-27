@@ -1,30 +1,65 @@
-import { useState } from 'react';
-import { Lock, Package, Settings } from 'lucide-react';
+
+import { useState, useEffect } from 'react';
+import { Lock, Package, Settings, LogOut } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
-
-// Simple admin placeholder - in production this would use proper auth
-const ADMIN_PASSWORD = 'trezentos2024';
+import { supabase } from '@/lib/supabase';
+import { Session } from '@supabase/supabase-js';
 
 const AdminPage = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      toast.success('Login realizado com sucesso!');
-    } else {
-      toast.error('Senha incorreta');
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        toast.error('Erro ao fazer login: ' + error.message);
+      } else {
+        toast.success('Login realizado com sucesso!');
+      }
+    } catch (error) {
+      toast.error('Ocorreu um erro inesperado');
+    } finally {
+      setLoading(false);
     }
   };
 
-  if (!isAuthenticated) {
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      toast.error('Erro ao sair');
+    }
+  };
+
+  if (!session) {
     return (
       <div className="min-h-screen bg-background pb-24">
         <Header />
@@ -43,7 +78,20 @@ const AdminPage = () => {
               <form onSubmit={handleLogin} className="space-y-4">
                 <div>
                   <label className="text-sm font-medium text-foreground mb-2 block">
-                    Senha de Acesso
+                    Email
+                  </label>
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@exemplo.com"
+                    className="bg-background"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="text-sm font-medium text-foreground mb-2 block">
+                    Senha
                   </label>
                   <Input
                     type="password"
@@ -51,13 +99,15 @@ const AdminPage = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Digite a senha"
                     className="bg-background"
+                    required
                   />
                 </div>
                 <Button
                   type="submit"
                   className="w-full gradient-gold text-primary-foreground"
+                  disabled={loading}
                 >
-                  Entrar
+                  {loading ? 'Entrando...' : 'Entrar'}
                 </Button>
               </form>
             </Card>
@@ -79,8 +129,9 @@ const AdminPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsAuthenticated(false)}
+            onClick={handleLogout}
           >
+            <LogOut className="h-4 w-4 mr-2" />
             Sair
           </Button>
         </div>
@@ -114,8 +165,8 @@ const AdminPage = () => {
         </div>
 
         <p className="text-center text-sm text-muted-foreground mt-8">
-          Para funcionalidades completas de administração,<br />
-          ative a integração com banco de dados.
+          Você está logado como: <br/>
+          <span className="font-medium text-foreground">{session.user.email}</span>
         </p>
       </main>
 

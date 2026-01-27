@@ -15,7 +15,7 @@ export function CartItem({ item }: CartItemProps) {
   return (
     <div className="flex gap-3 p-3 bg-card rounded-xl border border-border">
       <img
-        src={product.image}
+        src={product.image_url}
         alt={product.name}
         className="h-20 w-20 rounded-lg object-cover bg-muted"
       />

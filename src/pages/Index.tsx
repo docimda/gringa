@@ -1,6 +1,6 @@
+
 import { useState } from 'react';
 import { Search, RefreshCw } from 'lucide-react';
-import { MOCK_PRODUCTS } from '@/data/products';
 import { ProductCard } from '@/components/ProductCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { FloatingCartButton } from '@/components/FloatingCartButton';
@@ -10,15 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import { useProducts } from '@/hooks/useProducts';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const { getLastOrder, repeatLastOrder } = useCart();
+  const { data: products = [], isLoading, error } = useProducts();
   
   const lastOrder = getLastOrder();
 
-  const filteredProducts = MOCK_PRODUCTS.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
@@ -28,6 +31,43 @@ const Index = () => {
     repeatLastOrder();
     toast.success('Último pedido adicionado ao carrinho!');
   };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background pb-32">
+        <Header />
+        <main className="container px-4 py-4">
+          <div className="space-y-4">
+            <Skeleton className="h-10 w-full" />
+            <div className="flex gap-2 overflow-auto pb-2">
+               {[...Array(5)].map((_, i) => (
+                 <Skeleton key={i} className="h-8 w-24 flex-shrink-0 rounded-full" />
+               ))}
+            </div>
+            <div className="grid grid-cols-2 gap-3 mt-4">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-3">
+                  <Skeleton className="h-40 w-full rounded-xl" />
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </main>
+        <BottomNav />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-background pb-32 flex flex-col items-center justify-center p-4">
+        <p className="text-destructive mb-4">Erro ao carregar produtos</p>
+        <Button onClick={() => window.location.reload()}>Tentar novamente</Button>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background pb-32">

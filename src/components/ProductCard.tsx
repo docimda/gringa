@@ -1,3 +1,4 @@
+
 import { Plus, Minus, ShoppingCart } from 'lucide-react';
 import { Product } from '@/types/product';
 import { useCart } from '@/contexts/CartContext';
@@ -17,7 +18,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const quantity = cartItem?.quantity || 0;
 
   const handleAdd = () => {
-    if (!product.inStock) {
+    if (!product.active) {
       toast.error('Produto fora de estoque');
       return;
     }
@@ -26,7 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   const handleIncrease = () => {
-    if (quantity >= product.stockQuantity) {
+    if (quantity >= product.stock) {
       toast.error('Quantidade máxima em estoque');
       return;
     }
@@ -46,15 +47,15 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card className={cn(
       'group overflow-hidden transition-all duration-300',
       'hover:shadow-gold hover:border-primary/30',
-      !product.inStock && 'opacity-60'
+      !product.active && 'opacity-60'
     )}>
       <div className="relative aspect-square overflow-hidden bg-muted">
         <img
-          src={product.image}
+          src={product.image_url}
           alt={product.name}
           className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
-        {!product.inStock && (
+        {!product.active && (
           <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
             <span className="text-sm font-semibold text-destructive">
               Fora de Estoque
@@ -102,7 +103,7 @@ export function ProductCard({ product }: ProductCardProps) {
               size="sm"
               className="h-8 gap-1 gradient-gold text-primary-foreground shadow-gold"
               onClick={handleAdd}
-              disabled={!product.inStock}
+              disabled={!product.active}
             >
               <ShoppingCart className="h-3 w-3" />
               <span className="text-xs">Adicionar</span>

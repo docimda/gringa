@@ -1,12 +1,14 @@
+
 export interface Product {
   id: string;
   name: string;
   category: string;
   price: number;
-  image: string;
+  image_url: string;
   description?: string;
-  inStock: boolean;
-  stockQuantity: number;
+  active: boolean;
+  stock: number;
+  created_at?: string;
 }
 
 export interface CartItem {
