@@ -25,10 +25,13 @@ E-commerce platform for barbershops, built with React, TypeScript, and Supabase.
    ```
 
 2. **Environment Variables:**
-   Ensure `.env` contains:
+   Create `.env` from `.env.example` and set:
    ```
    VITE_SUPABASE_URL=your_supabase_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   SUPABASE_URL=your_supabase_url
+   SUPABASE_SERVICE_ROLE=your_service_role_key
+   ADMIN_PASSWORD=change_me
    ```
 
 3. **Database Setup:**
@@ -45,12 +48,25 @@ E-commerce platform for barbershops, built with React, TypeScript, and Supabase.
    ```bash
    node scripts/create-admin.js
    ```
-   Default credentials in script: `admin@trezentos.com` / `adminpassword123`
+   Default credentials in script: `admin@trezentos.com` / `mental300andre`
 
 6. **Run Development Server:**
    ```bash
    npm run dev
    ```
+
+## Deploy on Vercel
+
+1. Import the repository in Vercel Dashboard.
+2. Framework is auto-detected (Vite). Build: `npm run build`. Output: `dist`.
+3. Set Environment Variables in Vercel Project:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_ANON_KEY`
+   - Optionally for scripts (if used in CI):
+     - `SUPABASE_URL`
+     - `SUPABASE_SERVICE_ROLE`
+     - `ADMIN_PASSWORD`
+4. Trigger deploy; preview/live URLs will be available in Vercel.
 
 ## Admin Access
 

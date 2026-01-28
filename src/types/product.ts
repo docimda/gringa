@@ -22,7 +22,8 @@ export interface Order {
   total: number;
   customerInfo: CustomerInfo;
   createdAt: string;
-  status: 'pending' | 'sent' | 'completed';
+  status: 'pending' | 'processing' | 'sent' | 'delivered' | 'cancelled';
+  comments?: string;
 }
 
 export interface CustomerInfo {

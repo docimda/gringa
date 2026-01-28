@@ -1,13 +1,13 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = 'https://nswedijyvafrbxjsaple.supabase.co';
-const serviceRoleKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5zd2VkaWp5dmFmcmJ4anNhcGxlIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2OTU1MDAwMCwiZXhwIjoyMDg1MTI2MDAwfQ.g-Cad_cBpNDYMCi9MMd3vYhfda4HPz0_6UwKiYSnswE';
+const supabaseUrl = process.env.SUPABASE_URL;
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
 const adminEmail = 'admin@trezentos.com';
-const adminPassword = 'adminpassword123'; // Change this in production
+const adminPassword = process.env.ADMIN_PASSWORD || 'mental300andre';
 
 async function createAdmin() {
   console.log(`Creating admin user: ${adminEmail}...`);

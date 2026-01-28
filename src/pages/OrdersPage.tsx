@@ -1,12 +1,21 @@
-import { ClipboardList, Calendar, Package } from 'lucide-react';
+import { ClipboardList, Calendar, Package, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 const OrdersPage = () => {
-  const { orders } = useCart();
+  const { orders, removeOrder } = useCart();
+
+  const handleRemoveOrder = (orderId: string) => {
+    if (confirm('Tem certeza que deseja remover este pedido do histórico local?')) {
+      removeOrder(orderId);
+      toast.success('Pedido removido do histórico.');
+    }
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -64,7 +73,17 @@ const OrdersPage = () => {
                       </span>
                     </div>
                   </div>
-                  {getStatusBadge(order.status)}
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(order.status)}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                      onClick={() => handleRemoveOrder(order.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2 mb-3">

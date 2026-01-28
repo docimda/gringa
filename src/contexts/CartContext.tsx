@@ -13,6 +13,7 @@ interface CartContextType {
   setCustomerInfo: (info: CustomerInfo) => void;
   orders: Order[];
   addOrder: (order: Order) => void;
+  removeOrder: (orderId: string) => void;
   getLastOrder: () => Order | null;
   repeatLastOrder: () => void;
 }
@@ -106,6 +107,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setOrders((prev) => [order, ...prev]);
   };
 
+  const removeOrder = (orderId: string) => {
+    setOrders((prev) => prev.filter((order) => order.id !== orderId));
+  };
+
   const getLastOrder = () => {
     return orders.length > 0 ? orders[0] : null;
   };
@@ -131,6 +136,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         setCustomerInfo,
         orders,
         addOrder,
+        removeOrder,
         getLastOrder,
         repeatLastOrder,
       }}

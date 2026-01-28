@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from 'react';
-import { Lock, Package, Settings, LogOut } from 'lucide-react';
+import { useState } from 'react';
+import { Lock, Package, Settings, ShoppingBag } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -8,58 +8,34 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
-import { Session } from '@supabase/supabase-js';
+import { AdminOrders } from '@/components/AdminOrders';
 
 const AdminPage = () => {
-  const [session, setSession] = useState<Session | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders'>('dashboard');
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        toast.error('Erro ao fazer login: ' + error.message);
-      } else {
-        toast.success('Login realizado com sucesso!');
-      }
-    } catch (error) {
-      toast.error('Ocorreu um erro inesperado');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
     if (error) {
-      toast.error('Erro ao sair');
+      toast.error('Erro ao fazer login: ' + error.message);
+    } else {
+      setIsAuthenticated(true);
+      toast.success('Login realizado com sucesso!');
     }
+    setLoading(false);
   };
 
-  if (!session) {
+  if (!isAuthenticated) {
     return (
       <div className="min-h-screen bg-background pb-24">
         <Header />
@@ -86,7 +62,6 @@ const AdminPage = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="admin@exemplo.com"
                     className="bg-background"
-                    required
                   />
                 </div>
                 <div>
@@ -97,9 +72,8 @@ const AdminPage = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Digite a senha"
+                    placeholder="Sua senha"
                     className="bg-background"
-                    required
                   />
                 </div>
                 <Button
@@ -129,45 +103,82 @@ const AdminPage = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={handleLogout}
+            onClick={async () => {
+              await supabase.auth.signOut();
+              setIsAuthenticated(false);
+            }}
           >
-            <LogOut className="h-4 w-4 mr-2" />
             Sair
           </Button>
         </div>
 
-        <div className="grid gap-4">
-          <Card className="p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Package className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold text-foreground">Produtos</h2>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Gerencie o catálogo de produtos, preços e estoque.
-            </p>
-            <Button variant="outline" className="w-full" disabled>
-              Em breve
-            </Button>
-          </Card>
-
-          <Card className="p-4">
-            <div className="flex items-center gap-3 mb-3">
-              <Settings className="h-5 w-5 text-primary" />
-              <h2 className="font-semibold text-foreground">Configurações</h2>
-            </div>
-            <p className="text-sm text-muted-foreground mb-4">
-              Configure informações da loja e integrações.
-            </p>
-            <Button variant="outline" className="w-full" disabled>
-              Em breve
-            </Button>
-          </Card>
+        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+          <Button 
+            variant={activeTab === 'dashboard' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('dashboard')}
+          >
+            Dashboard
+          </Button>
+          <Button 
+            variant={activeTab === 'orders' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('orders')}
+          >
+            Pedidos
+          </Button>
+          <Button 
+            variant={activeTab === 'products' ? 'default' : 'outline'}
+            onClick={() => setActiveTab('products')}
+          >
+            Produtos
+          </Button>
         </div>
 
-        <p className="text-center text-sm text-muted-foreground mt-8">
-          Você está logado como: <br/>
-          <span className="font-medium text-foreground">{session.user.email}</span>
-        </p>
+        {activeTab === 'orders' && <AdminOrders />}
+
+        {activeTab === 'dashboard' && (
+          <div className="grid gap-4">
+            <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setActiveTab('products')}>
+              <div className="flex items-center gap-3 mb-3">
+                <Package className="h-5 w-5 text-primary" />
+                <h2 className="font-semibold text-foreground">Produtos</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Gerencie o catálogo de produtos, preços e estoque.
+              </p>
+            </Card>
+
+            <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setActiveTab('orders')}>
+              <div className="flex items-center gap-3 mb-3">
+                <ShoppingBag className="h-5 w-5 text-primary" />
+                <h2 className="font-semibold text-foreground">Pedidos</h2>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Visualize e gerencie pedidos recebidos.
+              </p>
+            </Card>
+
+            <Card className="p-4">
+              <div className="flex items-center gap-3 mb-3">
+                <Settings className="h-5 w-5 text-primary" />
+                <h2 className="font-semibold text-foreground">Configurações</h2>
+              </div>
+              <p className="text-sm text-muted-foreground mb-4">
+                Configure informações da loja e integrações.
+              </p>
+              <Button variant="outline" className="w-full" disabled>
+                Em breve
+              </Button>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'products' && (
+           <div className="text-center py-12">
+             <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+             <h3 className="text-lg font-medium">Gestão de Produtos</h3>
+             <p className="text-muted-foreground">Em desenvolvimento...</p>
+           </div>
+        )}
       </main>
 
       <BottomNav />

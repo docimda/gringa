@@ -30,6 +30,8 @@ const formSchema = z.object({
   email: z.string().trim().email('E-mail inválido').max(100, 'E-mail muito longo'),
 });
 
+import { createOrder } from '@/services/orderService';
+
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { items, getTotal, clearCart, customerInfo, setCustomerInfo, addOrder } = useCart();
@@ -66,7 +68,7 @@ ${itemsList}
 *Valor total do pedido:* €${total.toFixed(2)}`;
   };
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
 
     try {
@@ -78,10 +80,25 @@ ${itemsList}
         email: data.email,
       };
 
-      // Save customer info
+      // Save customer info locally
       setCustomerInfo(customerData);
 
-      // Create order record
+      // Create order in Supabase
+      try {
+        await createOrder({
+          items,
+          total,
+          customerInfo: customerData,
+        });
+      } catch (dbError) {
+        console.error('Erro ao salvar pedido no banco:', dbError);
+        // Não bloqueamos o fluxo se o banco falhar, pois o principal é o WhatsApp
+        // Mas idealmente deveríamos avisar ou tentar novamente.
+        // Vamos apenas logar por enquanto para não impedir a venda.
+        toast.error('Aviso: Pedido gerado, mas houve um erro ao salvar histórico.');
+      }
+
+      // Create local order record (legacy/cache)
       const order: Order = {
         id: Date.now().toString(),
         items: [...items],
