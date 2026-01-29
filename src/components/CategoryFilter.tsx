@@ -1,13 +1,13 @@
-import { CATEGORIES } from '@/types/product';
 import { cn } from '@/lib/utils';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface CategoryFilterProps {
   selected: string | null;
   onSelect: (category: string | null) => void;
+  categories: { id: string; label: string }[];
 }
 
-export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
+export function CategoryFilter({ selected, onSelect, categories }: CategoryFilterProps) {
   return (
     <ScrollArea className="w-full whitespace-nowrap">
       <div className="flex gap-2 pb-3">
@@ -22,7 +22,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps) {
         >
           Todos
         </button>
-        {CATEGORIES.map((category) => (
+        {categories.map((category) => (
           <button
             key={category.id}
             onClick={() => onSelect(category.id)}

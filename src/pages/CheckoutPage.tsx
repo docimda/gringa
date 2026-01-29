@@ -80,15 +80,17 @@ ${itemsList}
         email: data.email,
       };
 
-      // Save customer info locally
-      setCustomerInfo(customerData);
-
+      // Generate WhatsApp URL
+      const message = generateWhatsAppMessage(customerData);
+      
       // Create order in Supabase
+      let createdOrder = null;
       try {
-        await createOrder({
+        createdOrder = await createOrder({
           items,
           total,
           customerInfo: customerData,
+          whatsappMessage: message, // Pass message to service
         });
       } catch (dbError) {
         console.error('Erro ao salvar pedido no banco:', dbError);
@@ -99,8 +101,12 @@ ${itemsList}
       }
 
       // Create local order record (legacy/cache)
+      // Use the ID from Supabase if available, otherwise fallback to timestamp
+      const orderId = createdOrder?.id || Date.now().toString();
+      
       const order: Order = {
-        id: Date.now().toString(),
+        id: orderId,
+        orderNumber: createdOrder?.order_number, // Store the friendly ID
         items: [...items],
         total,
         customerInfo: customerData,
@@ -109,8 +115,6 @@ ${itemsList}
       };
       addOrder(order);
 
-      // Generate WhatsApp URL
-      const message = generateWhatsAppMessage(customerData);
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
 

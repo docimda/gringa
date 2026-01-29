@@ -8,6 +8,7 @@ export interface Product {
   description?: string;
   active: boolean;
   stock: number;
+  sku?: string;
   created_at?: string;
 }
 
@@ -18,12 +19,14 @@ export interface CartItem {
 
 export interface Order {
   id: string;
+  orderNumber?: number;
   items: CartItem[];
   total: number;
   customerInfo: CustomerInfo;
   createdAt: string;
   status: 'pending' | 'processing' | 'sent' | 'delivered' | 'cancelled';
   comments?: string;
+  external_comments?: string;
 }
 
 export interface CustomerInfo {

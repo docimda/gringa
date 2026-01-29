@@ -15,7 +15,7 @@ interface CartContextType {
   addOrder: (order: Order) => void;
   removeOrder: (orderId: string) => void;
   getLastOrder: () => Order | null;
-  repeatLastOrder: () => void;
+  repeatLastOrder: (currentProducts: Product[]) => Promise<boolean>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -115,11 +115,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return orders.length > 0 ? orders[0] : null;
   };
 
-  const repeatLastOrder = () => {
+  const repeatLastOrder = async (currentProducts: Product[]) => {
     const lastOrder = getLastOrder();
     if (lastOrder) {
-      setItems(lastOrder.items);
+      // Filtrar apenas itens que ainda estão ativos e existem na lista atual de produtos
+      const activeItems = lastOrder.items.filter(item => {
+        const currentProduct = currentProducts.find(p => p.id === item.product.id);
+        return currentProduct && currentProduct.active;
+      }).map(item => {
+        // Atualizar informações do produto com os dados mais recentes (preço, nome, etc)
+        const currentProduct = currentProducts.find(p => p.id === item.product.id)!;
+        return {
+          ...item,
+          product: currentProduct
+        };
+      });
+
+      if (activeItems.length === 0) {
+        return false; // Nenhum item pôde ser adicionado
+      }
+
+      setItems(activeItems);
+      return true; // Sucesso (pelo menos um item adicionado)
     }
+    return false;
   };
 
   return (

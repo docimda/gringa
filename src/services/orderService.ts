@@ -6,9 +6,10 @@ export interface CreateOrderParams {
   items: CartItem[];
   total: number;
   customerInfo: CustomerInfo;
+  whatsappMessage?: string;
 }
 
-export const createOrder = async ({ items, total, customerInfo }: CreateOrderParams) => {
+export const createOrder = async ({ items, total, customerInfo, whatsappMessage }: CreateOrderParams) => {
   try {
     // 1. Insert Order Header
     const { data: orderData, error: orderError } = await supabase
@@ -21,7 +22,7 @@ export const createOrder = async ({ items, total, customerInfo }: CreateOrderPar
         barbershop_name: customerInfo.barbershopName,
         total_amount: total,
         status: 'pending',
-        whatsapp_message: '',
+        whatsapp_message: whatsappMessage || '',
       })
       .select()
       .single();
@@ -45,6 +46,7 @@ export const createOrder = async ({ items, total, customerInfo }: CreateOrderPar
       quantity: item.quantity,
       unit_price: item.product.price,
       subtotal: item.product.price * item.quantity,
+      order_total_amount: total,
     }));
 
     const { error: itemsError } = await supabase
@@ -87,6 +89,7 @@ export const getOrders = async () => {
   // Transform Supabase response to Order type
   return data.map((order: any) => ({
     id: order.id,
+    orderNumber: order.order_number,
     items: order.order_items.map((item: any) => ({
       product: item.products as Product,
       quantity: item.quantity,
@@ -102,6 +105,52 @@ export const getOrders = async () => {
     createdAt: order.created_at,
     status: order.status,
     comments: order.comments,
+    external_comments: order.external_comments,
+  })) as Order[];
+};
+
+export const getOrdersByIds = async (ids: string[]) => {
+  if (!ids.length) return [];
+
+  const { data, error } = await supabase
+    .from('orders')
+    .select(`
+      *,
+      order_items (
+        *,
+        products (
+          *
+        )
+      )
+    `)
+    .in('id', ids)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Erro ao buscar pedidos por IDs:', error);
+    return [];
+  }
+
+  // Transform Supabase response to Order type
+  return data.map((order: any) => ({
+    id: order.id,
+    items: order.order_items.map((item: any) => ({
+      product: item.products as Product,
+      quantity: item.quantity,
+    })),
+    total: order.total_amount,
+    orderNumber: order.order_number,
+    customerInfo: {
+      responsibleName: order.customer_name,
+      barbershopName: order.barbershop_name || '',
+      address: order.customer_address,
+      phone: order.customer_phone,
+      email: order.customer_email || '',
+    },
+    createdAt: order.created_at,
+    status: order.status,
+    comments: order.comments,
+    external_comments: order.external_comments,
   })) as Order[];
 };
 
@@ -127,6 +176,15 @@ export const updateOrderComment = async (orderId: string, comments: string) => {
   const { error } = await supabase
     .from('orders')
     .update({ comments })
+    .eq('id', orderId);
+
+  if (error) throw error;
+};
+
+export const updateOrderExternalComment = async (orderId: string, external_comments: string) => {
+  const { error } = await supabase
+    .from('orders')
+    .update({ external_comments })
     .eq('id', orderId);
 
   if (error) throw error;

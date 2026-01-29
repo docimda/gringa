@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Search, RefreshCw } from 'lucide-react';
 import { ProductCard } from '@/components/ProductCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
@@ -21,15 +21,33 @@ const Index = () => {
   
   const lastOrder = getLastOrder();
 
+  // Calcular categorias dinâmicas
+  const categories = useMemo(() => {
+    // Apenas categorias que realmente têm produtos
+    const productCategories = new Set(products.map(p => p.category));
+    
+    // Converter para array e ordenar
+    const allCategories = Array.from(productCategories).sort();
+    
+    return allCategories.map(cat => ({
+      id: cat,
+      label: cat
+    }));
+  }, [products]);
+
   const filteredProducts = products.filter((product) => {
     const matchesCategory = !selectedCategory || product.category === selectedCategory;
     const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  const handleRepeatOrder = () => {
-    repeatLastOrder();
-    toast.success('Último pedido adicionado ao carrinho!');
+  const handleRepeatOrder = async () => {
+    const success = await repeatLastOrder(products);
+    if (success) {
+      toast.success('Último pedido adicionado ao carrinho!');
+    } else {
+      toast.error('Não foi possível repetir o pedido. Alguns itens podem estar indisponíveis.');
+    }
   };
 
   if (isLoading) {
@@ -44,7 +62,7 @@ const Index = () => {
                  <Skeleton key={i} className="h-8 w-24 flex-shrink-0 rounded-full" />
                ))}
             </div>
-            <div className="grid grid-cols-2 gap-3 mt-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
               {[...Array(6)].map((_, i) => (
                 <div key={i} className="space-y-3">
                   <Skeleton className="h-40 w-full rounded-xl" />
@@ -102,10 +120,11 @@ const Index = () => {
         <CategoryFilter
           selected={selectedCategory}
           onSelect={setSelectedCategory}
+          categories={categories}
         />
 
         {/* Products Grid */}
-        <div className="grid grid-cols-2 gap-3 mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4">
           {filteredProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

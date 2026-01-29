@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Lock, Package, Settings, ShoppingBag, Eye, EyeOff } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { AdminOrders } from '@/components/AdminOrders';
+import { AdminProducts } from '@/components/AdminProducts';
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -17,6 +18,22 @@ const AdminPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders'>('dashboard');
+
+  useEffect(() => {
+    // Check initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsAuthenticated(!!session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -187,11 +204,7 @@ const AdminPage = () => {
         )}
 
         {activeTab === 'products' && (
-           <div className="text-center py-12">
-             <Package className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-             <h3 className="text-lg font-medium">Gestão de Produtos</h3>
-             <p className="text-muted-foreground">Em desenvolvimento...</p>
-           </div>
+           <AdminProducts />
         )}
       </main>
 

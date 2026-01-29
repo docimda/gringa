@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, ArrowRight, Trash2 } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
@@ -5,10 +6,26 @@ import { CartItem } from '@/components/CartItem';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const CartPage = () => {
   const { items, getTotal, clearCart } = useCart();
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const total = getTotal();
+
+  const handleClearCart = () => {
+    clearCart();
+    setIsClearDialogOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-background pb-32">
@@ -22,7 +39,7 @@ const CartPage = () => {
               variant="ghost"
               size="sm"
               className="text-destructive hover:bg-destructive/10"
-              onClick={clearCart}
+              onClick={() => setIsClearDialogOpen(true)}
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Limpar
@@ -84,6 +101,23 @@ const CartPage = () => {
       </main>
 
       <BottomNav />
+      
+      <AlertDialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limpar Carrinho</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza de que deseja remover todos os itens do carrinho? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClearCart} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Confirmar Limpeza
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

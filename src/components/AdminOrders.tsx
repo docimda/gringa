@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getOrders, updateOrderStatus, updateOrderComment, deleteOrder } from '@/services/orderService';
+import { getOrders, updateOrderStatus, updateOrderComment, deleteOrder, updateOrderExternalComment } from '@/services/orderService';
 import { Order } from '@/types/product';
 import {
   Table,
@@ -19,22 +19,26 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Eye, Save, Trash2 } from 'lucide-react';
+import { Eye, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { OrderDetailsModal } from '@/components/OrderDetailsModal';
 
 export const AdminOrders = () => {
   const queryClient = useQueryClient();
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [comment, setComment] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [orderToDelete, setOrderToDelete] = useState<string | null>(null);
 
   const { data: orders, isLoading } = useQuery({
     queryKey: ['admin-orders'],
@@ -65,11 +69,24 @@ export const AdminOrders = () => {
     },
   });
 
+  const externalCommentMutation = useMutation({
+    mutationFn: ({ orderId, comment }: { orderId: string; comment: string }) =>
+      updateOrderExternalComment(orderId, comment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+      toast.success('Comentário para cliente salvo com sucesso');
+    },
+    onError: () => {
+      toast.error('Erro ao salvar comentário para cliente');
+    },
+  });
+
   const deleteMutation = useMutation({
     mutationFn: (orderId: string) => deleteOrder(orderId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
       toast.success('Pedido excluído com sucesso');
+      setOrderToDelete(null);
     },
     onError: () => {
       toast.error('Erro ao excluir pedido');
@@ -97,19 +114,23 @@ export const AdminOrders = () => {
     statusMutation.mutate({ orderId, status: newStatus });
   };
 
-  const handleSaveComment = (orderId: string) => {
+  const handleSaveInternalComment = (orderId: string, comment: string) => {
     commentMutation.mutate({ orderId, comment });
   };
 
-  const handleDeleteOrder = (orderId: string) => {
-    if (confirm('Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.')) {
-      deleteMutation.mutate(orderId);
+  const handleSaveExternalComment = (orderId: string, comment: string) => {
+    externalCommentMutation.mutate({ orderId, comment });
+  };
+
+  const confirmDelete = () => {
+    if (orderToDelete) {
+      deleteMutation.mutate(orderToDelete);
     }
   };
 
   const openOrderDetails = (order: Order) => {
     setSelectedOrder(order);
-    setComment(order.comments || '');
+    setIsModalOpen(true);
   };
 
   if (isLoading) {
@@ -135,7 +156,7 @@ export const AdminOrders = () => {
             {orders?.map((order) => (
               <TableRow key={order.id}>
                 <TableCell className="font-mono text-xs">
-                  {order.id.slice(0, 8)}
+                  {order.orderNumber ? `#${order.orderNumber}` : order.id.slice(0, 8)}
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
@@ -168,77 +189,19 @@ export const AdminOrders = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex justify-end gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => openOrderDetails(order)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-3xl">
-                        <DialogHeader>
-                          <DialogTitle>Detalhes do Pedido</DialogTitle>
-                        </DialogHeader>
-                        <div className="grid gap-4 py-4">
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <h3 className="font-semibold mb-2">Cliente</h3>
-                              <p className="text-sm">Nome: {selectedOrder?.customerInfo.responsibleName}</p>
-                              <p className="text-sm">Barbearia: {selectedOrder?.customerInfo.barbershopName}</p>
-                              <p className="text-sm">Email: {selectedOrder?.customerInfo.email}</p>
-                              <p className="text-sm">Telefone: {selectedOrder?.customerInfo.phone}</p>
-                              <p className="text-sm">Endereço: {selectedOrder?.customerInfo.address}</p>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold mb-2">Resumo</h3>
-                              <p className="text-sm">Data: {selectedOrder && new Date(selectedOrder.createdAt).toLocaleString('pt-BR')}</p>
-                              <p className="text-sm font-bold mt-2">Total: €{selectedOrder?.total.toFixed(2)}</p>
-                            </div>
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold mb-2">Itens</h3>
-                            <div className="border rounded-md p-2 max-h-40 overflow-y-auto">
-                              {selectedOrder?.items.map((item, idx) => (
-                                <div key={idx} className="flex justify-between text-sm py-1 border-b last:border-0">
-                                  <span>{item.quantity}x {item.product.name}</span>
-                                  <span>€{(item.product.price * item.quantity).toFixed(2)}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div>
-                            <h3 className="font-semibold mb-2">Comentários Internos</h3>
-                            <div className="flex gap-2">
-                              <Textarea
-                                value={comment}
-                                onChange={(e) => setComment(e.target.value)}
-                                placeholder="Adicione observações sobre este pedido..."
-                                className="min-h-[100px]"
-                              />
-                            </div>
-                            <Button 
-                              className="mt-2 w-full" 
-                              onClick={() => selectedOrder && handleSaveComment(selectedOrder.id)}
-                              disabled={commentMutation.isPending}
-                            >
-                              <Save className="h-4 w-4 mr-2" />
-                              Salvar Comentário
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => openOrderDetails(order)}
+                    >
+                      <Eye className="h-4 w-4" />
+                    </Button>
 
                     <Button
                       variant="ghost"
                       size="sm"
                       className="text-destructive hover:text-destructive"
-                      onClick={() => handleDeleteOrder(order.id)}
+                      onClick={() => setOrderToDelete(order.id)}
                       disabled={deleteMutation.isPending}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -250,6 +213,36 @@ export const AdminOrders = () => {
           </TableBody>
         </Table>
       </div>
+
+      <OrderDetailsModal
+        order={selectedOrder}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        isAdmin={true}
+        onSaveInternalComment={handleSaveInternalComment}
+        onSaveExternalComment={handleSaveExternalComment}
+        isSaving={commentMutation.isPending || externalCommentMutation.isPending}
+      />
+
+      <AlertDialog open={!!orderToDelete} onOpenChange={(open) => !open && setOrderToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Pedido</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir este pedido? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
