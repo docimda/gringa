@@ -63,6 +63,8 @@ export const AdminProducts = () => {
     stockInput: '0',
     category: '',
     image_url: '',
+    image_url_2: '',
+    image_url_3: '',
     active: true,
   });
 
@@ -140,6 +142,8 @@ export const AdminProducts = () => {
       stockInput: '',
       category: '',
       image_url: '',
+      image_url_2: '',
+      image_url_3: '',
       active: true,
     });
     setIsModalOpen(true);
@@ -157,6 +161,8 @@ export const AdminProducts = () => {
       stockInput: product.stock.toString(),
       category: product.category,
       image_url: product.image_url,
+      image_url_2: product.image_url_2 || '',
+      image_url_3: product.image_url_3 || '',
       active: product.active,
     });
     setIsModalOpen(true);
@@ -372,32 +378,86 @@ export const AdminProducts = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="image_url">URL da Imagem *</Label>
-              <div className="flex gap-4 items-start">
-                <div className="flex-1">
-                  <Input
-                    id="image_url"
-                    value={formData.image_url}
-                    onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
-                    placeholder="https://exemplo.com/imagem.jpg"
-                    required
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Cole o link direto da imagem (hospedada externamente).
-                  </p>
-                </div>
-                {formData.image_url && (
-                  <div className="h-16 w-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
-                    <img 
-                      src={formData.image_url} 
-                      alt="Preview" 
-                      className="h-full w-full object-cover"
-                      onError={(e) => (e.currentTarget.style.display = 'none')} 
+            <div className="space-y-4">
+              {/* Imagem Principal */}
+              <div className="space-y-2">
+                <Label htmlFor="image_url">URL - Imagem Principal *</Label>
+                <div className="flex gap-4 items-start">
+                  <div className="flex-1">
+                    <Input
+                      id="image_url"
+                      value={formData.image_url}
+                      onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                      placeholder="https://exemplo.com/imagem-principal.jpg"
+                      required
                     />
                   </div>
-                )}
+                  {formData.image_url && (
+                    <div className="h-16 w-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
+                      <img 
+                        src={formData.image_url} 
+                        alt="Preview Principal" 
+                        className="h-full w-full object-cover"
+                        onError={(e) => (e.currentTarget.style.display = 'none')} 
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Imagem 2 */}
+              <div className="space-y-2">
+                <Label htmlFor="image_url_2">URL - Imagem 2</Label>
+                <div className="flex gap-4 items-start">
+                  <div className="flex-1">
+                    <Input
+                      id="image_url_2"
+                      value={formData.image_url_2}
+                      onChange={(e) => setFormData({ ...formData, image_url_2: e.target.value })}
+                      placeholder="https://exemplo.com/imagem-2.jpg"
+                    />
+                  </div>
+                  {formData.image_url_2 && (
+                    <div className="h-16 w-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
+                      <img 
+                        src={formData.image_url_2} 
+                        alt="Preview 2" 
+                        className="h-full w-full object-cover"
+                        onError={(e) => (e.currentTarget.style.display = 'none')} 
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Imagem 3 */}
+              <div className="space-y-2">
+                <Label htmlFor="image_url_3">URL - Imagem 3</Label>
+                <div className="flex gap-4 items-start">
+                  <div className="flex-1">
+                    <Input
+                      id="image_url_3"
+                      value={formData.image_url_3}
+                      onChange={(e) => setFormData({ ...formData, image_url_3: e.target.value })}
+                      placeholder="https://exemplo.com/imagem-3.jpg"
+                    />
+                  </div>
+                  {formData.image_url_3 && (
+                    <div className="h-16 w-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
+                      <img 
+                        src={formData.image_url_3} 
+                        alt="Preview 3" 
+                        className="h-full w-full object-cover"
+                        onError={(e) => (e.currentTarget.style.display = 'none')} 
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+              
+              <p className="text-xs text-muted-foreground">
+                Cole o link direto da imagem (hospedada externamente).
+              </p>
             </div>
 
             <div className="space-y-2">
