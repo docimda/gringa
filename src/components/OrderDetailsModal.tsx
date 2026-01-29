@@ -63,7 +63,7 @@ export const OrderDetailsModal = ({
             <div>
               <h3 className="font-semibold mb-2">Resumo</h3>
               <p className="text-sm">Data: {new Date(order.createdAt).toLocaleString('pt-BR')}</p>
-              <p className="text-sm font-bold mt-2">Total: €{order.total.toFixed(2)}</p>
+              <p className="text-sm font-bold mt-2">Total: R$ {order.total.toFixed(2)}</p>
             </div>
           </div>
 
@@ -73,7 +73,7 @@ export const OrderDetailsModal = ({
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between text-sm py-1 border-b last:border-0">
                   <span>{item.quantity}x {item.product.name}</span>
-                  <span>€{(item.product.price * item.quantity).toFixed(2)}</span>
+                  <span>R$ {(item.product.price * item.quantity).toFixed(2)}</span>
                 </div>
               ))}
             </div>

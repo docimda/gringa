@@ -85,7 +85,7 @@ export function ProductCard({ product }: ProductCardProps) {
           
           <div className="flex items-center justify-between gap-2 mt-auto pt-2">
             <span className="text-lg font-bold text-primary whitespace-nowrap">
-              €{product.price.toFixed(2)}
+              R$ {product.price.toFixed(2)}
             </span>
             
             {quantity > 0 ? (
@@ -141,7 +141,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <span className="text-2xl font-bold text-primary">
-                  €{product.price.toFixed(2)}
+                  R$ {product.price.toFixed(2)}
                 </span>
                 {product.sku && (
                   <span className="text-sm text-muted-foreground">

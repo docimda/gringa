@@ -29,7 +29,7 @@ export function FloatingCartButton() {
           </div>
           <span className="font-semibold">Ver Carrinho</span>
         </div>
-        <span className="font-bold text-lg">€{total.toFixed(2)}</span>
+        <span className="font-bold text-lg">R$ {total.toFixed(2)}</span>
       </Button>
     </Link>
   );

@@ -25,7 +25,7 @@ export function CartItem({ item }: CartItemProps) {
           {product.name}
         </h3>
         <p className="text-xs text-muted-foreground mt-1">
-          €{product.price.toFixed(2)} cada
+          R$ {product.price.toFixed(2)} cada
         </p>
         
         <div className="flex items-center justify-between mt-2">
@@ -53,7 +53,7 @@ export function CartItem({ item }: CartItemProps) {
           
           <div className="flex items-center gap-2">
             <span className="font-bold text-primary">
-              €{subtotal.toFixed(2)}
+              R$ {subtotal.toFixed(2)}
             </span>
             <Button
               variant="ghost"

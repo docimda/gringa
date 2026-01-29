@@ -167,7 +167,7 @@ export const AdminOrders = () => {
                 <TableCell>
                   {new Date(order.createdAt).toLocaleDateString('pt-BR')}
                 </TableCell>
-                <TableCell>€{order.total.toFixed(2)}</TableCell>
+                <TableCell>R$ {order.total.toFixed(2)}</TableCell>
                 <TableCell>
                   <Select
                     defaultValue={order.status}

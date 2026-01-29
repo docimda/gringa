@@ -185,7 +185,7 @@ const OrdersPage = () => {
                     {order.customerInfo.barbershopName}
                   </span>
                   <span className="font-bold text-primary">
-                    €{order.total.toFixed(2)}
+                    R$ {order.total.toFixed(2)}
                   </span>
                 </div>
               </Card>

@@ -258,7 +258,7 @@ export const AdminProducts = () => {
                     {product.category}
                   </span>
                 </TableCell>
-                <TableCell>€{product.price.toFixed(2)}</TableCell>
+                <TableCell>R$ {product.price.toFixed(2)}</TableCell>
                 <TableCell>{product.stock}</TableCell>
                 <TableCell>
                   <Switch
@@ -353,7 +353,7 @@ export const AdminProducts = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="price">Preço (€) *</Label>
+              <Label htmlFor="price">Preço (R$) *</Label>
               <Input
                 id="price"
                 type="number"

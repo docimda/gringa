@@ -51,7 +51,7 @@ const CheckoutPage = () => {
 
   const generateWhatsAppMessage = (data: CustomerInfo) => {
     const itemsList = items
-      .map((item) => `- ${item.product.name} (Qtd: ${item.quantity}) - €${(item.product.price * item.quantity).toFixed(2)}`)
+      .map((item) => `- ${item.product.name} (Qtd: ${item.quantity}) - R$ ${(item.product.price * item.quantity).toFixed(2)}`)
       .join('\n');
 
     return `Olá, segue pedido de reabastecimento da barbearia:
@@ -65,7 +65,7 @@ const CheckoutPage = () => {
 *Itens do pedido:*
 ${itemsList}
 
-*Valor total do pedido:* €${total.toFixed(2)}`;
+*Valor total do pedido:* R$ ${total.toFixed(2)}`;
   };
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
@@ -164,14 +164,14 @@ ${itemsList}
                   {item.quantity}x {item.product.name}
                 </span>
                 <span className="text-foreground">
-                  €{(item.product.price * item.quantity).toFixed(2)}
+                  R$ {(item.product.price * item.quantity).toFixed(2)}
                 </span>
               </div>
             ))}
             <div className="border-t border-border pt-2 mt-3">
               <div className="flex justify-between font-bold">
                 <span>Total</span>
-                <span className="text-primary">€{total.toFixed(2)}</span>
+                <span className="text-primary">R$ {total.toFixed(2)}</span>
               </div>
             </div>
           </div>
