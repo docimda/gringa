@@ -20,7 +20,7 @@ import {
 import { toast } from 'sonner';
 import { CustomerInfo, Order } from '@/types/product';
 
-const WHATSAPP_NUMBER = '353833394121';
+const WHATSAPP_NUMBER = '5511947197497';
 
 const formSchema = z.object({
   responsibleName: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100, 'Nome muito longo'),
