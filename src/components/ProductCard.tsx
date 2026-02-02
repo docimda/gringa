@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { Plus, Minus, ShoppingCart, Info } from 'lucide-react';
+import { Plus, Minus, ShoppingCart, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Product } from '@/types/product';
 import { useCart } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
@@ -16,9 +16,25 @@ interface ProductCardProps {
 export function ProductCard({ product }: ProductCardProps) {
   const { items, addItem, updateQuantity, removeItem } = useCart();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const cartItem = items.find((item) => item.product.id === product.id);
   const quantity = cartItem?.quantity || 0;
+
+  // Filtrar imagens válidas
+  const images = [
+    product.image_url,
+    product.image_url_2,
+    product.image_url_3
+  ].filter((url): url is string => !!url);
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+  };
 
   const handleAdd = () => {
     if (!product.active) {
@@ -131,12 +147,51 @@ export function ProductCard({ product }: ProductCardProps) {
             <DialogTitle className="text-center">{product.name}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted">
+            <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted relative group">
               <img
-                src={product.image_url}
-                alt={product.name}
+                src={images[currentImageIndex]}
+                alt={`${product.name} - Imagem ${currentImageIndex + 1}`}
                 className="h-full w-full object-contain"
               />
+              
+              {images.length > 1 && (
+                <>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/90 shadow-md h-8 w-8 rounded-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevImage();
+                    }}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background/90 shadow-md h-8 w-8 rounded-full"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNextImage();
+                    }}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                  
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 bg-background/50 px-2 py-1 rounded-full">
+                    {images.map((_, idx) => (
+                      <div
+                        key={idx}
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full transition-all",
+                          idx === currentImageIndex ? "bg-primary w-3" : "bg-muted-foreground/50"
+                        )}
+                      />
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex justify-between items-center">

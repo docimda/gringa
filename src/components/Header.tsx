@@ -2,7 +2,7 @@ import { Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import logo from '@/assets/logo.webp';
+import logo from '@/assets/vacasemfundo.png';
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -13,15 +13,15 @@ export function Header() {
         <div className="flex items-center gap-3">
           <img 
             src={logo} 
-            alt="trezentosbarbershop" 
+            alt="Docim da Gringa" 
             className="h-10 w-10 rounded-full object-cover"
           />
           <div className="flex flex-col">
             <span className="text-sm font-bold tracking-tight text-foreground">
-              TREZENTOS
+              DOCIM
             </span>
             <span className="text-xs text-muted-foreground">
-              BARBERSHOP
+              DA GRINGA
             </span>
           </div>
         </div>

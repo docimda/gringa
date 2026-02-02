@@ -4,94 +4,99 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap');
 
-/* trezentosbarbershop Design System - Premium Dark Theme */
+/* Docim da Gringa Design System - Sweet Chocolate Theme */
 
 @layer base {
   :root {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 95%;
+    /* Light Cream Background */
+    --background: 45 100% 97%; /* #FFFBF0 */
+    --foreground: 10 23% 20%; /* #3E2723 - Dark Chocolate Text */
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 95%;
+    --card: 0 0% 100%; /* White */
+    --card-foreground: 10 23% 20%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 10 23% 20%;
 
-    --primary: 35 80% 50%;
-    --primary-foreground: 0 0% 5%;
+    /* Milk Chocolate Primary */
+    --primary: 14 40% 40%; /* #8D5B4C */
+    --primary-foreground: 45 100% 97%; /* Cream text */
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
+    /* Caramel Secondary */
+    --secondary: 36 100% 65%; /* #FFB74D */
+    --secondary-foreground: 10 23% 20%;
 
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 14 20% 90%; /* Light Cocoa */
+    --muted-foreground: 14 10% 50%;
 
-    --accent: 35 80% 50%;
-    --accent-foreground: 0 0% 5%;
+    /* Purple Accent (Wrapper) */
+    --accent: 288 65% 40%; /* #8E24AA */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 35 80% 50%;
+    --border: 14 20% 85%;
+    --input: 14 20% 85%;
+    --ring: 14 40% 40%;
 
     --radius: 0.75rem;
 
-    /* Custom tokens */
-    --gold: 35 80% 50%;
-    --gold-light: 35 70% 60%;
-    --copper: 25 70% 45%;
-    --graphite: 0 0% 12%;
-    --charcoal: 0 0% 8%;
+    /* Custom tokens - Mapping old gold/copper to new theme */
+    --gold: 36 100% 65%; /* Caramel */
+    --gold-light: 36 100% 75%;
+    --copper: 14 40% 40%; /* Chocolate */
+    --graphite: 10 23% 20%; /* Dark Chocolate */
+    --charcoal: 10 23% 15%;
 
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 35 80% 50%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 35 80% 50%;
+    --sidebar-background: 45 100% 95%;
+    --sidebar-foreground: 10 23% 20%;
+    --sidebar-primary: 14 40% 40%;
+    --sidebar-primary-foreground: 45 100% 97%;
+    --sidebar-accent: 36 100% 85%;
+    --sidebar-accent-foreground: 10 23% 20%;
+    --sidebar-border: 14 20% 85%;
+    --sidebar-ring: 14 40% 40%;
   }
 
   .dark {
-    --background: 0 0% 7%;
-    --foreground: 0 0% 95%;
+    /* Dark Chocolate Theme */
+    --background: 10 23% 15%; /* Deep Dark Chocolate */
+    --foreground: 45 100% 97%; /* Cream Text */
 
-    --card: 0 0% 10%;
-    --card-foreground: 0 0% 95%;
+    --card: 10 23% 18%;
+    --card-foreground: 45 100% 97%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 95%;
+    --popover: 10 23% 18%;
+    --popover-foreground: 45 100% 97%;
 
-    --primary: 35 80% 50%;
-    --primary-foreground: 0 0% 5%;
+    --primary: 36 100% 65%; /* Caramel stands out on dark */
+    --primary-foreground: 10 23% 20%;
 
-    --secondary: 0 0% 15%;
-    --secondary-foreground: 0 0% 95%;
+    --secondary: 14 40% 40%; /* Milk Chocolate */
+    --secondary-foreground: 45 100% 97%;
 
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 10 23% 25%;
+    --muted-foreground: 10 20% 70%;
 
-    --accent: 35 80% 50%;
-    --accent-foreground: 0 0% 5%;
+    --accent: 288 65% 50%; /* Lighter Purple */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 35 80% 50%;
+    --border: 10 23% 25%;
+    --input: 10 23% 25%;
+    --ring: 36 100% 65%;
 
-    --sidebar-background: 0 0% 8%;
-    --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 35 80% 50%;
-    --sidebar-primary-foreground: 0 0% 5%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 35 80% 50%;
+    --sidebar-background: 10 23% 12%;
+    --sidebar-foreground: 45 100% 97%;
+    --sidebar-primary: 36 100% 65%;
+    --sidebar-primary-foreground: 10 23% 20%;
+    --sidebar-accent: 10 23% 25%;
+    --sidebar-accent-foreground: 45 100% 97%;
+    --sidebar-border: 10 23% 25%;
+    --sidebar-ring: 36 100% 65%;
   }
 }
 

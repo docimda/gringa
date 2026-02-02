@@ -1,43 +1,31 @@
-Para conectar seu projeto ao Vercel, você deve usar a Vercel CLI. Aqui está o passo a passo e os comandos exatos para rodar no seu terminal:
+Vou transformar a identidade do app para **"Loja Docim da Gringa"**, focando em uma paleta de cores apetitosa (Chocolate, Creme e Caramelo) e atualizando os textos principais.
 
-## Passo a Passo para Conectar e Deployar
+Aqui está o plano detalhado para essa transformação:
 
-1. **Instalar a Vercel CLI (se ainda não tiver)**
+## 1. Atualizar a Identidade Visual (Cores)
+Vou substituir o tema "Dark Premium" atual por um tema **"Chocolate & Cream"** no arquivo `src/index.css`.
+*   **Fundo (`--background`)**: Creme suave (`#FFFBF0`) - para dar sensação de limpeza e apetite.
+*   **Texto (`--foreground`)**: Marrom Café/Chocolate Escuro (`#3E2723`) - melhor leitura e contraste.
+*   **Cor Principal (`--primary`)**: Marrom Chocolate ao Leite (`#795548`) - para botões e destaques principais.
+*   **Cor Secundária (`--secondary`)**: Caramelo/Dourado (`#FFB74D`) - para detalhes e chamadas de atenção.
+*   **Destaque (`--accent`)**: Roxo (`#8E24AA`) - inspirado na embalagem do chocolate do logo, para pequenos detalhes vibrantes.
 
-   * Comando: `npm i -g vercel`
+## 2. Atualizar Nome e Textos do App
+Vou alterar os textos fixos que ainda mencionam a barbearia.
+*   **Arquivo `src/components/Header.tsx`**:
+    *   Mudar "TREZENTOS" para **"DOCIM"**.
+    *   Mudar "BARBERSHOP" para **"DA GRINGA"**.
+*   **Arquivo `index.html`**:
+    *   Atualizar o `<title>` para **"Docim da Gringa | Loja de Doces"**.
+    *   Atualizar as meta tags (descrição) para refletir a nova loja de doces.
 
-   * Isso instala a ferramenta de linha de comando do Vercel globalmente.
+## 3. Atualizar o Logo
+*   Como você anexou a imagem aqui no chat, eu não consigo salvá-la diretamente na pasta do projeto.
+*   **Ação necessária de sua parte**: Você precisará salvar a imagem do logo que você enviou com o nome `logo.webp` e substituir o arquivo existente na pasta:
+    `/Users/app/Dev/novorepogit/gringa/src/assets/logo.webp`
+*   Eu manterei o código apontando para esse arquivo, então assim que você substituir, o novo logo aparecerá.
 
-2. **Fazer Login no Vercel**
+## 4. Estrutura e Funcionalidades
+*   Conforme solicitado, **nenhuma funcionalidade será alterada**. A estrutura de produtos, categorias e carrinho continuará funcionando exatamente como antes, apenas com a nova "roupagem".
 
-   * Comando: `vercel login`
-
-   * Siga as instruções para autenticar com sua conta (GitHub, GitLab, Email, etc.).
-
-3. **Conectar e Deployar o Projeto**
-
-   * Comando Principal: `vercel`
-
-   * Este é o comando que você pediu. Rode ele na raiz do projeto (`/Users/app/Dev/novorepogit/gringa`).
-
-   * vagabundo
-
-## O que vai acontecer quando você rodar `vercel`:
-
-O terminal fará algumas perguntas. Você pode aceitar o padrão (pressionando Enter) para a maioria delas, já que seu arquivo `vercel.json` já está configurado corretamente.
-
-* `Set up and deploy “~/Dev/novorepogit/gringa”?` -> **y**
-
-* `Which scope do you want to deploy to?` -> Selecione sua conta.
-
-* `Link to existing project?` -> **n** (se for a primeira vez)
-
-* `What’s your project’s name?` -> **gringa** (ou o nome que preferir)
-
-* `In which directory is your code located?` -> **./** (padrão)
-
-* `Want to modify these settings?` -> **n** (pois o `vercel.json` já detectou que é Vite)
-
-Após isso, ele fará o build e te dará uma URL de produção.
-
-Se você confirmar este plano, eu posso tentar rodar o comando de instalação e login para você, ou você pode rodá-los manualmente seguindo estas instruções.
+Você aprova essas mudanças de cores e textos? Se sim, iniciarei a edição dos arquivos agora mesmo.

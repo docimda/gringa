@@ -10,6 +10,7 @@ export const useProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .eq('store', 'docimdagringa')
         .order('name');
       
       if (error) {

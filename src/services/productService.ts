@@ -6,6 +6,7 @@ export const getProducts = async () => {
   const { data, error } = await supabase
     .from('products')
     .select('*')
+    .eq('store', 'docimdagringa')
     .order('created_at', { ascending: false });
 
   if (error) throw error;

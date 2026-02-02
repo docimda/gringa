@@ -11,6 +11,7 @@ export interface Product {
   active: boolean;
   stock: number;
   sku?: string;
+  store?: string;
   created_at?: string;
 }
 

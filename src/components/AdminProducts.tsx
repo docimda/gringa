@@ -134,8 +134,8 @@ export const AdminProducts = () => {
     setEditingProduct(null);
     setFormData({
       name: '',
-      description: '',
-      price: 0,
+      store: 'docimdagringa',
+      description: '',   price: 0,
       priceInput: '',
       sku: '',
       stock: 0,
@@ -153,6 +153,7 @@ export const AdminProducts = () => {
     setEditingProduct(product);
     setFormData({
       name: product.name,
+      store: product.store || '',
       description: product.description || '',
       price: product.price,
       priceInput: product.price.toString(),
@@ -315,6 +316,21 @@ export const AdminProducts = () => {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="store">Loja *</Label>
+                <Input
+                  id="store"
+                  value={formData.store}
+                  onChange={(e) => setFormData({ ...formData, store: e.target.value })}
+                  placeholder="Nome da Loja"
+                  required
+                  disabled
+                  className="bg-muted text-muted-foreground cursor-not-allowed"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="sku">SKU (Código)</Label>
                 <Input
