@@ -23,3 +23,8 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+# Agent
+.agent/
+
+testsprite_tests/
