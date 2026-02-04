@@ -54,16 +54,30 @@ export const OrderDetailsModal = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h3 className="font-semibold mb-2">Cliente</h3>
-              <p className="text-sm">Nome: {order.customerInfo.responsibleName}</p>
-              <p className="text-sm">Barbearia: {order.customerInfo.barbershopName}</p>
-              <p className="text-sm">Email: {order.customerInfo.email}</p>
-              <p className="text-sm">Telefone: {order.customerInfo.phone}</p>
-              <p className="text-sm">Endereço: {order.customerInfo.address}</p>
+              <p className="text-sm"><span className="font-medium">Nome do responsável por receber o pedido:</span> {order.customerInfo.responsibleName}</p>
+              <p className="text-sm"><span className="font-medium">Nome:</span> {order.customerInfo.barbershopName}</p>
+              <p className="text-sm"><span className="font-medium">Email:</span> {order.customerInfo.email}</p>
+              <p className="text-sm"><span className="font-medium">Telefone:</span> {order.customerInfo.phone}</p>
+              <p className="text-sm"><span className="font-medium">Endereço:</span> {order.customerInfo.address}</p>
             </div>
             <div>
               <h3 className="font-semibold mb-2">Resumo</h3>
-              <p className="text-sm">Data: {new Date(order.createdAt).toLocaleString('pt-BR')}</p>
-              <p className="text-sm font-bold mt-2">Total: R$ {order.total.toFixed(2)}</p>
+              <p className="text-sm mb-2">Data: {new Date(order.createdAt).toLocaleString('pt-BR')}</p>
+              
+              <div className="space-y-1 text-sm border-t pt-2">
+                <div className="flex justify-between">
+                  <span>Subtotal:</span>
+                  <span>R$ {order.items.reduce((acc, item) => acc + item.product.price * item.quantity, 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Frete {order.shippingRate ? `(${order.shippingRate.city} - ${order.shippingRate.neighborhood})` : ''}:</span>
+                  <span>R$ {(order.shippingRate?.price ?? (order.total - order.items.reduce((acc, item) => acc + item.product.price * item.quantity, 0))).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between font-bold pt-1 border-t mt-1">
+                  <span>Total:</span>
+                  <span>R$ {order.total.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
 

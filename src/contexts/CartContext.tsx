@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Product, CartItem, CustomerInfo, Order } from '@/types/product';
+import { Product, CartItem, CustomerInfo, Order, ShippingRate } from '@/types/product';
 
 interface CartContextType {
   items: CartItem[];
@@ -14,8 +14,11 @@ interface CartContextType {
   orders: Order[];
   addOrder: (order: Order) => void;
   removeOrder: (orderId: string) => void;
+  syncLocalOrders: (validOrders: Order[]) => void;
   getLastOrder: () => Order | null;
   repeatLastOrder: (currentProducts: Product[]) => Promise<boolean>;
+  shippingRate: ShippingRate | null;
+  setShippingRate: (rate: ShippingRate | null) => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -23,6 +26,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 const CART_STORAGE_KEY = 'trezentos_cart';
 const CUSTOMER_STORAGE_KEY = 'trezentos_customer';
 const ORDERS_STORAGE_KEY = 'trezentos_orders';
+const SHIPPING_STORAGE_KEY = 'trezentos_shipping';
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
@@ -40,6 +44,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return stored ? JSON.parse(stored) : [];
   });
 
+  const [shippingRate, setShippingRate] = useState<ShippingRate | null>(() => {
+    const stored = localStorage.getItem(SHIPPING_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : null;
+  });
+
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items]);
@@ -53,6 +62,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     localStorage.setItem(ORDERS_STORAGE_KEY, JSON.stringify(orders));
   }, [orders]);
+
+  useEffect(() => {
+    if (shippingRate) {
+      localStorage.setItem(SHIPPING_STORAGE_KEY, JSON.stringify(shippingRate));
+    } else {
+      localStorage.removeItem(SHIPPING_STORAGE_KEY);
+    }
+  }, [shippingRate]);
 
   const addItem = (product: Product) => {
     setItems((prev) => {
@@ -86,13 +103,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = () => {
     setItems([]);
+    setShippingRate(null);
   };
 
   const getTotal = () => {
-    return items.reduce(
+    const itemsTotal = items.reduce(
       (total, item) => total + item.product.price * item.quantity,
       0
     );
+    return itemsTotal + (shippingRate?.price || 0);
   };
 
   const getItemCount = () => {
@@ -109,6 +128,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const removeOrder = (orderId: string) => {
     setOrders((prev) => prev.filter((order) => order.id !== orderId));
+  };
+
+  const syncLocalOrders = (validOrders: Order[]) => {
+    // Apenas atualiza se houver diferença para evitar re-renderizações desnecessárias
+    if (JSON.stringify(validOrders) !== JSON.stringify(orders)) {
+      console.log('Sincronizando cache de pedidos com o banco de dados. Pedidos anteriores:', orders.length, 'Pedidos atuais:', validOrders.length);
+      setOrders(validOrders);
+    }
   };
 
   const getLastOrder = () => {
@@ -156,8 +183,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
         orders,
         addOrder,
         removeOrder,
+        syncLocalOrders,
         getLastOrder,
         repeatLastOrder,
+        shippingRate,
+        setShippingRate,
       }}
     >
       {children}

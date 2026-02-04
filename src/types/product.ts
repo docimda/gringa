@@ -15,6 +15,15 @@ export interface Product {
   created_at?: string;
 }
 
+export interface ShippingRate {
+  id: string;
+  store_name: string;
+  state: string;
+  city: string;
+  neighborhood: string;
+  price: number;
+}
+
 export interface CartItem {
   product: Product;
   quantity: number;
@@ -25,6 +34,7 @@ export interface Order {
   orderNumber?: number;
   items: CartItem[];
   total: number;
+  shippingRate?: ShippingRate;
   customerInfo: CustomerInfo;
   createdAt: string;
   status: 'pending' | 'processing' | 'sent' | 'delivered' | 'cancelled';
@@ -40,7 +50,7 @@ export interface CustomerInfo {
   email: string;
 }
 
-export type ProductCategory = 
+export type ProductCategory =
   | 'gels-pomadas'
   | 'maquinas'
   | 'laminas'

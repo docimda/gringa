@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Lock, Package, Settings, ShoppingBag, Eye, EyeOff } from 'lucide-react';
+import { Lock, Package, Settings, ShoppingBag, Eye, EyeOff, Truck } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/lib/supabase';
 import { AdminOrders } from '@/components/AdminOrders';
 import { AdminProducts } from '@/components/AdminProducts';
+import { ShippingRatesManager } from '@/components/ShippingRatesManager';
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,6 +19,7 @@ const AdminPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders'>('dashboard');
+  const [isShippingManagerOpen, setIsShippingManagerOpen] = useState(false);
 
   useEffect(() => {
     // Check initial session
@@ -162,6 +164,13 @@ const AdminPage = () => {
           >
             Produtos
           </Button>
+          <Button 
+            variant="outline"
+            onClick={() => setIsShippingManagerOpen(true)}
+          >
+            <Truck className="h-4 w-4 mr-2" />
+            Ajuste de Frete
+          </Button>
         </div>
 
         {activeTab === 'orders' && <AdminOrders />}
@@ -206,6 +215,11 @@ const AdminPage = () => {
         {activeTab === 'products' && (
            <AdminProducts />
         )}
+
+        <ShippingRatesManager
+          isOpen={isShippingManagerOpen}
+          onClose={() => setIsShippingManagerOpen(false)}
+        />
       </main>
 
       <BottomNav />

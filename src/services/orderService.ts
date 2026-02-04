@@ -1,15 +1,16 @@
 
 import { supabase } from '@/lib/supabase';
-import { CartItem, CustomerInfo, Order, Product } from '@/types/product';
+import { CartItem, CustomerInfo, Order, Product, ShippingRate } from '@/types/product';
 
 export interface CreateOrderParams {
   items: CartItem[];
   total: number;
   customerInfo: CustomerInfo;
   whatsappMessage?: string;
+  shippingRate?: ShippingRate;
 }
 
-export const createOrder = async ({ items, total, customerInfo, whatsappMessage }: CreateOrderParams) => {
+export const createOrder = async ({ items, total, customerInfo, whatsappMessage, shippingRate }: CreateOrderParams) => {
   try {
     // 1. Insert Order Header
     const { data: orderData, error: orderError } = await supabase
@@ -23,6 +24,9 @@ export const createOrder = async ({ items, total, customerInfo, whatsappMessage 
         total_amount: total,
         status: 'pending',
         whatsapp_message: whatsappMessage || '',
+        shipping_city: shippingRate?.city || null,
+        shipping_neighborhood: shippingRate?.neighborhood || null,
+        shipping_cost: shippingRate?.price || 0,
       })
       .select()
       .single();
@@ -102,6 +106,14 @@ export const getOrders = async () => {
       phone: order.customer_phone,
       email: order.customer_email || '',
     },
+    shippingRate: order.shipping_city ? {
+      id: 'stored-rate',
+      store_name: '',
+      state: 'SP',
+      city: order.shipping_city,
+      neighborhood: order.shipping_neighborhood || '',
+      price: Number(order.shipping_cost || 0),
+    } : undefined,
     createdAt: order.created_at,
     status: order.status,
     comments: order.comments,
@@ -147,6 +159,14 @@ export const getOrdersByIds = async (ids: string[]) => {
       phone: order.customer_phone,
       email: order.customer_email || '',
     },
+    shippingRate: order.shipping_city ? {
+      id: 'stored-rate',
+      store_name: '',
+      state: 'SP',
+      city: order.shipping_city,
+      neighborhood: order.shipping_neighborhood || '',
+      price: Number(order.shipping_cost || 0),
+    } : undefined,
     createdAt: order.created_at,
     status: order.status,
     comments: order.comments,

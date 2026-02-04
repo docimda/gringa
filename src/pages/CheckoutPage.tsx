@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Send, MessageCircle } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -34,9 +34,10 @@ import { createOrder } from '@/services/orderService';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
-  const { items, getTotal, clearCart, customerInfo, setCustomerInfo, addOrder } = useCart();
+  const { items, getTotal, clearCart, customerInfo, setCustomerInfo, addOrder, shippingRate } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const total = getTotal();
+  const itemsSubtotal = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,15 +50,22 @@ const CheckoutPage = () => {
     },
   });
 
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      setCustomerInfo(value as CustomerInfo);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, setCustomerInfo]);
+
   const generateWhatsAppMessage = (data: CustomerInfo) => {
     const itemsList = items
       .map((item) => `- ${item.product.name} (Qtd: ${item.quantity}) - R$ ${(item.product.price * item.quantity).toFixed(2)}`)
       .join('\n');
 
-    return `Olá, segue pedido de reabastecimento da barbearia:
+    return `Olá, segue meu pedido:
 
-*Responsável:* ${data.responsibleName}
-*Barbearia:* ${data.barbershopName}
+*Nome do responsável:* ${data.responsibleName}
+*Nome:* ${data.barbershopName}
 *Endereço:* ${data.address}
 *Telefone:* ${data.phone}
 *E-mail:* ${data.email}
@@ -65,6 +73,7 @@ const CheckoutPage = () => {
 *Itens do pedido:*
 ${itemsList}
 
+*Frete (${shippingRate?.neighborhood || 'N/A'}):* R$ ${(shippingRate?.price || 0).toFixed(2)}
 *Valor total do pedido:* R$ ${total.toFixed(2)}`;
   };
 
@@ -82,7 +91,7 @@ ${itemsList}
 
       // Generate WhatsApp URL
       const message = generateWhatsAppMessage(customerData);
-      
+
       // Create order in Supabase
       let createdOrder = null;
       try {
@@ -91,6 +100,7 @@ ${itemsList}
           total,
           customerInfo: customerData,
           whatsappMessage: message, // Pass message to service
+          shippingRate: shippingRate || undefined,
         });
       } catch (dbError) {
         console.error('Erro ao salvar pedido no banco:', dbError);
@@ -103,13 +113,14 @@ ${itemsList}
       // Create local order record (legacy/cache)
       // Use the ID from Supabase if available, otherwise fallback to timestamp
       const orderId = createdOrder?.id || Date.now().toString();
-      
+
       const order: Order = {
         id: orderId,
         orderNumber: createdOrder?.order_number, // Store the friendly ID
         items: [...items],
         total,
         customerInfo: customerData,
+        shippingRate: shippingRate || undefined,
         createdAt: new Date().toISOString(),
         status: 'sent',
       };
@@ -120,10 +131,10 @@ ${itemsList}
 
       // Clear cart and redirect
       clearCart();
-      
+
       // Open WhatsApp in new tab
       window.open(whatsappUrl, '_blank');
-      
+
       toast.success('Pedido enviado com sucesso!');
       navigate('/pedidos');
     } catch (error) {
@@ -141,7 +152,7 @@ ${itemsList}
   return (
     <div className="min-h-screen bg-background pb-32">
       <Header />
-      
+
       <main className="container px-4 py-4">
         <Button
           variant="ghost"
@@ -168,8 +179,16 @@ ${itemsList}
                 </span>
               </div>
             ))}
-            <div className="border-t border-border pt-2 mt-3">
-              <div className="flex justify-between font-bold">
+            <div className="border-t border-border pt-2 mt-3 space-y-1">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-foreground">R$ {itemsSubtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Frete ({shippingRate?.neighborhood || 'N/A'})</span>
+                <span className="text-foreground">R$ {(shippingRate?.price || 0).toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between font-bold pt-2 border-t border-border">
                 <span>Total</span>
                 <span className="text-primary">R$ {total.toFixed(2)}</span>
               </div>
@@ -178,9 +197,13 @@ ${itemsList}
         </div>
 
         {/* Customer Form */}
+        <div className="mb-2 text-xs text-muted-foreground flex items-center gap-1 pl-1">
+          <span>*</span>
+          <p>Os dados abaixo ficarão salvos para os próximos pedidos</p>
+        </div>
         <div className="bg-card rounded-xl border border-border p-4">
-          <h2 className="font-semibold text-foreground mb-4">Dados da Barbearia</h2>
-          
+          <h2 className="font-semibold text-foreground mb-4">Seus Dados</h2>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
@@ -188,7 +211,7 @@ ${itemsList}
                 name="responsibleName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome do Responsável</FormLabel>
+                    <FormLabel>Nome do responsável por receber o pedido</FormLabel>
                     <FormControl>
                       <Input placeholder="Seu nome" {...field} />
                     </FormControl>
@@ -202,9 +225,9 @@ ${itemsList}
                 name="barbershopName"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nome da Barbearia</FormLabel>
+                    <FormLabel>Seu Nome</FormLabel>
                     <FormControl>
-                      <Input placeholder="Nome da sua barbearia" {...field} />
+                      <Input placeholder="Seu nome ou da empresa" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

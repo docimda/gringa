@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Trash2 } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { ShoppingBag, ArrowRight, Trash2, MessageCircle, Pencil, Truck, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { CartItem } from '@/components/CartItem';
 import { Header } from '@/components/Header';
@@ -17,10 +17,16 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+import { ShippingSelectionModal } from '@/components/ShippingSelectionModal';
+import { toast } from 'sonner';
+
 const CartPage = () => {
-  const { items, getTotal, clearCart } = useCart();
+  const navigate = useNavigate();
+  const { items, getTotal, clearCart, shippingRate, setShippingRate } = useCart();
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
+  const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
   const total = getTotal();
+  const itemsSubtotal = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
 
   const handleClearCart = () => {
     clearCart();
@@ -30,20 +36,12 @@ const CartPage = () => {
   return (
     <div className="min-h-screen bg-background pb-32">
       <Header />
-      
+
       <main className="container px-4 py-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-foreground">Carrinho</h1>
           {items.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-destructive hover:bg-destructive/10"
-              onClick={() => setIsClearDialogOpen(true)}
-            >
-              <Trash2 className="h-4 w-4 mr-1" />
-              Limpar
-            </Button>
+            <ShoppingCart className="h-6 w-6 text-primary" />
           )}
         </div>
 
@@ -72,13 +70,49 @@ const CartPage = () => {
 
             {/* Order Summary */}
             <div className="bg-card rounded-xl border border-border p-4 space-y-3">
-              <div className="flex justify-between text-sm">
+              <div className="flex justify-between text-sm items-center">
                 <span className="text-muted-foreground">Subtotal</span>
-                <span className="text-foreground">R$ {total.toFixed(2)}</span>
+                <span className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-medium">
+                  R$ {itemsSubtotal.toFixed(2)}
+                </span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Entrega</span>
-                <span className="text-primary">A combinar</span>
+              <div className="space-y-4">
+                <div className="flex justify-between text-sm items-center">
+                  <span className="text-muted-foreground">Entrega</span>
+                  <Button
+                    variant="link"
+                    className={`h-auto p-0 font-normal text-right flex items-center gap-1 ${shippingRate
+                      ? 'px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors'
+                      : 'text-primary'
+                      }`}
+                    onClick={() => setIsShippingModalOpen(true)}
+                  >
+                    {shippingRate
+                      ? `${shippingRate.neighborhood} - R$ ${shippingRate.price.toFixed(2)}`
+                      : "Selecionar Local de Entrega"}
+                  </Button>
+                </div>
+                <div className="flex justify-between text-sm items-center">
+                  <span className="text-muted-foreground">Cupom de Desconto</span>
+                  <span className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-medium">
+                    Em Breve ...
+                  </span>
+                </div>
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p className="flex items-center gap-1">
+                    Em breve mais pontos de entrega! <Truck className="h-3.5 w-3.5" />
+                  </p>
+                  <p>
+                    <a
+                      href="https://wa.me/5511947197497?text=Olá%2C%20gostaria%20de%20ver%20a%20possibilidade%20de%20um%20novo%20ponto%20de%20entrega."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-700 underline transition-colors"
+                    >
+                      Entre em contato para ver a possibilidade de um novo local de entrega.
+                    </a>
+                  </p>
+                </div>
               </div>
               <div className="border-t border-border pt-3">
                 <div className="flex justify-between">
@@ -90,18 +124,25 @@ const CartPage = () => {
               </div>
             </div>
 
-            <Link to="/checkout" className="block mt-6">
-              <Button className="w-full h-14 gradient-gold text-primary-foreground shadow-gold text-lg font-semibold">
-                Finalizar Pedido
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
-            </Link>
+            <Button
+              className="w-full h-14 gradient-gold text-primary-foreground shadow-gold text-lg font-semibold mt-6"
+              onClick={() => {
+                if (!shippingRate) {
+                  toast.error('Por favor selecione um local de entrega!');
+                  return;
+                }
+                navigate('/checkout');
+              }}
+            >
+              Finalizar Pedido
+              <ArrowRight className="h-5 w-5 ml-2" />
+            </Button>
           </>
         )}
       </main>
 
       <BottomNav />
-      
+
       <AlertDialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -118,6 +159,13 @@ const CartPage = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ShippingSelectionModal
+        open={isShippingModalOpen}
+        onOpenChange={setIsShippingModalOpen}
+        onSelectRate={setShippingRate}
+        currentRate={shippingRate}
+      />
     </div>
   );
 };
