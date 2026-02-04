@@ -32,12 +32,38 @@ const formSchema = z.object({
 
 import { createOrder } from '@/services/orderService';
 
+import { PaymentModal } from '@/components/PaymentModal';
+import { gerarPix } from '@/services/pixService';
+import { CreditCard } from 'lucide-react';
+
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { items, getTotal, clearCart, customerInfo, setCustomerInfo, addOrder, shippingRate } = useCart();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [pixCode, setPixCode] = useState('');
+  
   const total = getTotal();
   const itemsSubtotal = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+
+  const handlePayment = () => {
+    // Exemplo: Dados da sua empresa
+    // IMPORTANTE: Idealmente viria de uma config no banco
+    const chavePix = '63813434000120'; // CNPJ sem pontuação
+    const nome = 'GRINGA STORE';
+    const cidade = 'SAO PAULO';
+    
+    const code = gerarPix({
+      chave: chavePix,
+      nome,
+      cidade,
+      valor: total,
+      txid: `GRINGA${Date.now().toString().slice(-4)}` // Exemplo de ID único curto
+    });
+
+    setPixCode(code);
+    setIsPaymentModalOpen(true);
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -275,19 +301,31 @@ ${itemsList}
                   </FormItem>
                 )}
               />
-
-              <Button
-                type="submit"
-                className="w-full h-14 gradient-gold text-primary-foreground shadow-gold text-lg font-semibold mt-6"
-                disabled={isSubmitting}
-              >
-                <MessageCircle className="h-5 w-5 mr-2" />
-                Enviar Pedido via WhatsApp
-              </Button>
             </form>
           </Form>
         </div>
+
+        <Button
+          type="button"
+          onClick={handlePayment}
+          className="w-full h-14 bg-green-600 hover:bg-green-700 text-white shadow-md text-lg font-semibold mt-6"
+        >
+          <CreditCard className="h-5 w-5 mr-2" />
+          Fazer Pagamento (PIX)
+        </Button>
       </main>
+
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        pixCode={pixCode}
+        total={total}
+        onConfirm={() => {
+           setIsPaymentModalOpen(false);
+           form.handleSubmit(onSubmit)();
+        }}
+        isSubmitting={isSubmitting}
+      />
 
       <BottomNav />
     </div>
