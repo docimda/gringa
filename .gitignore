@@ -25,6 +25,6 @@ dist-ssr
 .vercel
 
 # Agent
-.agent/
+
 
 testsprite_tests/
