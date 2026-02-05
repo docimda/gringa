@@ -13,6 +13,16 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import {
   Card,
   CardContent,
 } from '@/components/ui/card';
@@ -29,6 +39,7 @@ export const ShippingRatesManager = ({ isOpen, onClose }: ShippingRatesManagerPr
   const [editingRate, setEditingRate] = useState<ShippingRate | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [formData, setFormData] = useState<Partial<ShippingRate>>({});
+  const [rateToDelete, setRateToDelete] = useState<string | null>(null);
 
   const { data: rates, isLoading } = useQuery({
     queryKey: ['shipping-rates'],
@@ -63,6 +74,7 @@ export const ShippingRatesManager = ({ isOpen, onClose }: ShippingRatesManagerPr
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['shipping-rates'] });
       toast.success('Taxa removida com sucesso');
+      setRateToDelete(null);
     },
     onError: () => toast.error('Erro ao remover taxa'),
   });
@@ -104,8 +116,12 @@ export const ShippingRatesManager = ({ isOpen, onClose }: ShippingRatesManagerPr
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm('Tem certeza que deseja excluir esta taxa?')) {
-      deleteMutation.mutate(id);
+    setRateToDelete(id);
+  };
+
+  const confirmDelete = () => {
+    if (rateToDelete) {
+      deleteMutation.mutate(rateToDelete);
     }
   };
 
@@ -218,6 +234,26 @@ export const ShippingRatesManager = ({ isOpen, onClose }: ShippingRatesManagerPr
           <Button variant="outline" onClick={onClose}>Fechar</Button>
         </DialogFooter>
       </DialogContent>
+
+      <AlertDialog open={!!rateToDelete} onOpenChange={(open) => !open && setRateToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir Taxa</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta taxa de entrega? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };

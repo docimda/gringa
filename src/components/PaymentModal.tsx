@@ -37,7 +37,7 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md md:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <CreditCard className="h-6 w-6 text-primary" />
@@ -45,23 +45,31 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col items-center justify-center py-6 space-y-6">
-          <div className="text-center space-y-2">
-            <p className="text-sm text-muted-foreground">Valor total a pagar</p>
-            <p className="text-3xl font-bold text-primary">
-              R$ {total.toFixed(2)}
-            </p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-6 md:py-4">
+          {/* Coluna Esquerda - QR Code */}
+          <div className="flex flex-col items-center justify-center space-y-4 border-r-0 md:border-r md:pr-6 border-border">
+            <div className="text-center space-y-1">
+              <p className="text-sm text-muted-foreground">Valor total a pagar</p>
+              <p className="text-3xl font-bold text-primary">
+                R$ {total.toFixed(2)}
+              </p>
+            </div>
 
-          <div className="p-4 bg-white rounded-xl shadow-sm border">
-            <QRCodeSVG value={pixCode} size={200} level="M" />
-          </div>
-
-          <div className="w-full space-y-2">
-            <p className="text-sm text-center text-muted-foreground mb-2">
+            <div className="p-4 bg-white rounded-xl shadow-sm border">
+              <QRCodeSVG value={pixCode} size={200} level="M" />
+            </div>
+            
+            <p className="text-sm text-center text-muted-foreground md:hidden">
               Escaneie o QR Code acima ou copie o código abaixo:
             </p>
-            
+          </div>
+
+          {/* Coluna Direita - Copia e Cola & Ações */}
+          <div className="flex flex-col justify-center space-y-4">
+            <p className="text-sm text-center text-muted-foreground hidden md:block mb-2">
+              Escaneie o QR Code ao lado ou copie o código abaixo:
+            </p>
+
             <div className="relative">
               <textarea 
                 className="w-full h-24 p-3 pr-12 text-xs bg-muted/50 rounded-md border resize-none font-mono focus:outline-none focus:ring-1 focus:ring-primary"
@@ -85,7 +93,7 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
             <Button 
               type="button" 
               variant="outline"
-              className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 mt-2" 
+              className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700" 
               onClick={handleCopy}
             >
               {copied ? (
@@ -100,14 +108,14 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
                 </>
               )}
             </Button>
-          </div>
 
-          <div className="bg-blue-50 text-blue-700 p-3 rounded-lg text-sm w-full text-center">
-            <p>Após realizar o pagamento, clique no botão enviar pedido para equipe via WhatsApp e cole o comprovante de pagamento.</p>
+            <div className="bg-blue-50 text-blue-700 p-3 rounded-lg text-sm w-full text-center">
+              <p>Após realizar o pagamento, clique no botão abaixo e cole o comprovante.</p>
+            </div>
           </div>
         </div>
 
-        <DialogFooter className="sm:justify-center">
+        <DialogFooter className="sm:justify-center md:justify-end">
           <Button
             type="button"
             className="w-full h-12 gradient-gold text-primary-foreground shadow-gold text-lg font-semibold flex items-center justify-center gap-2"

@@ -107,10 +107,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const getTotal = () => {
-    const itemsTotal = items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
-      0
-    );
+    const itemsTotal = items.reduce((total, item) => {
+      const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
+      const price = hasDiscount ? item.product.price * (1 - (item.product.discount_percentage! / 100)) : item.product.price;
+      return total + price * item.quantity;
+    }, 0);
     return itemsTotal + (shippingRate?.price || 0);
   };
 

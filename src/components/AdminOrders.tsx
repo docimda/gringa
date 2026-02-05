@@ -161,7 +161,7 @@ export const AdminOrders = () => {
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-medium">{order.customerInfo.responsibleName}</span>
-                    <span className="text-xs text-muted-foreground">{order.customerInfo.barbershopName}</span>
+                    <span className="text-xs text-muted-foreground">{order.customerInfo.email}</span>
                   </div>
                 </TableCell>
                 <TableCell>

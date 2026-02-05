@@ -53,11 +53,14 @@ export const AdminProducts = () => {
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
 
   // Estado do formulário
-  const [formData, setFormData] = useState<Partial<Product> & { stockInput: string; priceInput: string }>({
+  const [formData, setFormData] = useState<Partial<Product> & { stockInput: string; priceInput: string; discountInput: string }>({
     name: '',
     description: '',
     price: 0,
     priceInput: '0',
+    discount_percentage: 0,
+    discountInput: '0',
+    discount_expires_at: '',
     sku: '',
     stock: 0,
     stockInput: '0',
@@ -135,8 +138,12 @@ export const AdminProducts = () => {
     setFormData({
       name: '',
       store: 'docimdagringa',
-      description: '',   price: 0,
+      description: '',
+      price: 0,
       priceInput: '',
+      discount_percentage: 0,
+      discountInput: '',
+      discount_expires_at: '',
       sku: '',
       stock: 0,
       stockInput: '',
@@ -157,6 +164,9 @@ export const AdminProducts = () => {
       description: product.description || '',
       price: product.price,
       priceInput: product.price.toString(),
+      discount_percentage: product.discount_percentage || 0,
+      discountInput: (product.discount_percentage || 0).toString(),
+      discount_expires_at: product.discount_expires_at ? new Date(product.discount_expires_at).toISOString().split('T')[0] : '',
       sku: product.sku || '',
       stock: product.stock,
       stockInput: product.stock.toString(),
@@ -184,11 +194,18 @@ export const AdminProducts = () => {
     }
 
     // Prepare payload by removing helper fields
-    const { priceInput, stockInput, ...payload } = formData;
+    const { priceInput, stockInput, discountInput, ...payload } = formData;
 
     // Convert empty SKU to null to avoid unique constraint violation
     if (payload.sku === '') {
       payload.sku = null as any; // Cast to any to allow null if type is strict string
+    }
+
+    if (payload.discount_expires_at === '') {
+      payload.discount_expires_at = null as any;
+    } else if (payload.discount_expires_at) {
+      // Ensure it's a valid timestamp with timezone if needed, or just ISO string
+      payload.discount_expires_at = new Date(payload.discount_expires_at!).toISOString();
     }
 
     if (editingProduct) {
@@ -374,24 +391,63 @@ export const AdminProducts = () => {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="price">Preço (R$) *</Label>
-              <Input
-                id="price"
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.priceInput}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  setFormData({ 
-                    ...formData, 
-                    priceInput: value,
-                    price: value === '' ? 0 : parseFloat(value) || 0 
-                  });
-                }}
-                required
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">Preço (R$) *</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.priceInput}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ 
+                      ...formData, 
+                      priceInput: value,
+                      price: value === '' ? 0 : parseFloat(value) || 0 
+                    });
+                  }}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="finalPrice">Preço Final (Visualização)</Label>
+                <div className="flex h-10 w-full rounded-md border border-input bg-muted px-3 py-2 text-sm text-muted-foreground items-center font-semibold">
+                  R$ {(formData.price * (1 - (formData.discount_percentage || 0) / 100)).toFixed(2)}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="discount">Desconto (%)</Label>
+                <Input
+                  id="discount"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.discountInput}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setFormData({ 
+                      ...formData, 
+                      discountInput: value,
+                      discount_percentage: value === '' ? 0 : parseFloat(value) || 0 
+                    });
+                  }}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="discountExpiry">Validade do Desconto</Label>
+                <Input
+                  id="discountExpiry"
+                  type="date"
+                  value={formData.discount_expires_at ? new Date(formData.discount_expires_at).toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFormData({ ...formData, discount_expires_at: e.target.value })}
+                />
+              </div>
             </div>
 
             <div className="space-y-4">

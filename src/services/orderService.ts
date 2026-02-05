@@ -19,9 +19,17 @@ export const createOrder = async ({ items, total, customerInfo, whatsappMessage,
         customer_name: customerInfo.responsibleName,
         customer_phone: customerInfo.phone,
         customer_address: customerInfo.address,
+        complement: customerInfo.complement || null,
         customer_email: customerInfo.email,
-        barbershop_name: customerInfo.barbershopName,
+        order_notes: customerInfo.orderNotes || null,
         total_amount: total,
+        total_discount: items.reduce((acc, item) => {
+          // Calculate discount per item if applicable
+          const discount = item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date())
+            ? (item.product.price * (item.product.discount_percentage / 100)) * item.quantity
+            : 0;
+          return acc + discount;
+        }, 0),
         status: 'pending',
         whatsapp_message: whatsappMessage || '',
         shipping_city: shippingRate?.city || null,
@@ -44,14 +52,23 @@ export const createOrder = async ({ items, total, customerInfo, whatsappMessage,
     if (!orderData) throw new Error('Falha ao criar pedido: Retorno vazio do banco');
 
     // 2. Insert Order Items
-    const orderItems = items.map((item) => ({
-      order_id: orderData.id,
-      product_id: item.product.id,
-      quantity: item.quantity,
-      unit_price: item.product.price,
-      subtotal: item.product.price * item.quantity,
-      order_total_amount: total,
-    }));
+    const orderItems = items.map((item) => {
+      // Calculate active discount
+      const hasDiscount = item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date());
+      const discountPercentage = hasDiscount ? item.product.discount_percentage : 0;
+      // Unit price is the price PAID (so discounted if applicable)
+      const unitPrice = hasDiscount ? item.product.price * (1 - (discountPercentage! / 100)) : item.product.price;
+
+      return {
+        order_id: orderData.id,
+        product_id: item.product.id,
+        quantity: item.quantity,
+        unit_price: unitPrice,
+        subtotal: unitPrice * item.quantity,
+        order_total_amount: total,
+        discount_percentage: discountPercentage,
+      };
+    });
 
     const { error: itemsError } = await supabase
       .from('order_items')
@@ -101,10 +118,11 @@ export const getOrders = async () => {
     total: order.total_amount,
     customerInfo: {
       responsibleName: order.customer_name,
-      barbershopName: order.barbershop_name || '',
       address: order.customer_address,
+      complement: order.complement || '',
       phone: order.customer_phone,
       email: order.customer_email || '',
+      orderNotes: order.order_notes || '',
     },
     shippingRate: order.shipping_city ? {
       id: 'stored-rate',
@@ -116,7 +134,7 @@ export const getOrders = async () => {
     } : undefined,
     createdAt: order.created_at,
     status: order.status,
-    comments: order.comments,
+    internal_comments: order.internal_comments,
     external_comments: order.external_comments,
   })) as Order[];
 };
@@ -154,10 +172,11 @@ export const getOrdersByIds = async (ids: string[]) => {
     orderNumber: order.order_number,
     customerInfo: {
       responsibleName: order.customer_name,
-      barbershopName: order.barbershop_name || '',
       address: order.customer_address,
+      complement: order.complement || '',
       phone: order.customer_phone,
       email: order.customer_email || '',
+      orderNotes: order.order_notes || '',
     },
     shippingRate: order.shipping_city ? {
       id: 'stored-rate',
@@ -169,7 +188,7 @@ export const getOrdersByIds = async (ids: string[]) => {
     } : undefined,
     createdAt: order.created_at,
     status: order.status,
-    comments: order.comments,
+    internal_comments: order.internal_comments,
     external_comments: order.external_comments,
   })) as Order[];
 };
@@ -192,10 +211,10 @@ export const updateOrderStatus = async (orderId: string, status: string) => {
   }
 };
 
-export const updateOrderComment = async (orderId: string, comments: string) => {
+export const updateOrderComment = async (orderId: string, internal_comments: string) => {
   const { error } = await supabase
     .from('orders')
-    .update({ comments })
+    .update({ internal_comments })
     .eq('id', orderId);
 
   if (error) throw error;

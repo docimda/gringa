@@ -13,6 +13,8 @@ export interface Product {
   sku?: string;
   store?: string;
   created_at?: string;
+  discount_percentage?: number;
+  discount_expires_at?: string;
 }
 
 export interface ShippingRate {
@@ -38,16 +40,18 @@ export interface Order {
   customerInfo: CustomerInfo;
   createdAt: string;
   status: 'pending' | 'processing' | 'sent' | 'delivered' | 'cancelled';
-  comments?: string;
+  internal_comments?: string;
   external_comments?: string;
+  total_discount?: number;
 }
 
 export interface CustomerInfo {
   responsibleName: string;
-  barbershopName: string;
   address: string;
+  complement?: string;
   phone: string;
   email: string;
+  orderNotes?: string;
 }
 
 export type ProductCategory =

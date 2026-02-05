@@ -28,6 +28,10 @@ export function ProductCard({ product }: ProductCardProps) {
     product.image_url_3
   ].filter((url): url is string => !!url);
 
+  // Calculate discount
+  const hasDiscount = !!(product.discount_percentage && product.discount_percentage > 0 && (!product.discount_expires_at || new Date(product.discount_expires_at) > new Date()));
+  const discountedPrice = hasDiscount ? product.price * (1 - (product.discount_percentage! / 100)) : product.price;
+
   const handleNextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
   };
@@ -85,13 +89,31 @@ export function ProductCard({ product }: ProductCardProps) {
               </span>
             </div>
           )}
+          {hasDiscount && (
+            <>
+              <div className="absolute top-2 left-2">
+                <span className="bg-destructive text-destructive-foreground text-xs font-bold px-2 py-1 rounded-full shadow-md">
+                  -{product.discount_percentage}%
+                </span>
+              </div>
+              {product.discount_expires_at && (
+                <div className="absolute top-2 right-2">
+                  <span className="bg-background/90 text-destructive text-[10px] font-semibold px-2 py-1 rounded-full shadow-sm border border-destructive/20">
+                    Válido até: {new Date(product.discount_expires_at).toLocaleDateString()}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
         </div>
         
         <div className="p-3 space-y-2 flex flex-col h-full">
           <div>
-            <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-tight mb-1">
-              {product.name}
-            </h3>
+            <div className="flex justify-between items-start gap-2">
+              <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-tight mb-1">
+                {product.name}
+              </h3>
+            </div>
             {product.description && (
               <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2.5em]">
                 {product.description}
@@ -100,9 +122,16 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
           
           <div className="flex items-center justify-between gap-2 mt-auto pt-2">
-            <span className="text-lg font-bold text-primary whitespace-nowrap">
-              R$ {product.price.toFixed(2)}
-            </span>
+            <div className="flex flex-col">
+              {hasDiscount && (
+                <span className="text-xs text-muted-foreground line-through decoration-destructive/60">
+                  R$ {product.price.toFixed(2)}
+                </span>
+              )}
+              <span className={cn("text-lg font-bold text-primary whitespace-nowrap", hasDiscount && "text-green-600")}>
+                R$ {discountedPrice.toFixed(2)}
+              </span>
+            </div>
             
             {quantity > 0 ? (
               <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">

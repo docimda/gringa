@@ -10,7 +10,11 @@ interface CartItemProps {
 export function CartItem({ item }: CartItemProps) {
   const { updateQuantity, removeItem } = useCart();
   const { product, quantity } = item;
-  const subtotal = product.price * quantity;
+  
+  // Calculate discount logic locally for display
+  const hasDiscount = !!(product.discount_percentage && product.discount_percentage > 0 && (!product.discount_expires_at || new Date(product.discount_expires_at) > new Date()));
+  const price = hasDiscount ? product.price * (1 - (product.discount_percentage! / 100)) : product.price;
+  const subtotal = price * quantity;
 
   return (
     <div className="flex gap-3 p-3 bg-card rounded-xl border border-border">
@@ -24,9 +28,26 @@ export function CartItem({ item }: CartItemProps) {
         <h3 className="font-semibold text-sm text-foreground line-clamp-2">
           {product.name}
         </h3>
-        <p className="text-xs text-muted-foreground mt-1">
-          R$ {product.price.toFixed(2)} cada
-        </p>
+        
+        <div className="flex flex-col mt-1">
+          {hasDiscount ? (
+            <div className="flex items-center gap-2">
+              <p className="text-xs text-muted-foreground line-through">
+                R$ {product.price.toFixed(2)}
+              </p>
+              <p className="text-xs font-semibold text-green-600">
+                R$ {price.toFixed(2)} cada
+              </p>
+              <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">
+                -{product.discount_percentage}%
+              </span>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              R$ {product.price.toFixed(2)} cada
+            </p>
+          )}
+        </div>
         
         <div className="flex items-center justify-between mt-2">
           <div className="flex items-center gap-2 bg-secondary rounded-lg p-1">

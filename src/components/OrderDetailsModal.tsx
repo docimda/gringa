@@ -35,7 +35,7 @@ export const OrderDetailsModal = ({
 
   useEffect(() => {
     if (order) {
-      setInternalComment(order.comments || '');
+      setInternalComment(order.internal_comments || '');
       setExternalComment(order.external_comments || '');
     }
   }, [order]);
@@ -55,10 +55,15 @@ export const OrderDetailsModal = ({
             <div>
               <h3 className="font-semibold mb-2">Cliente</h3>
               <p className="text-sm"><span className="font-medium">Nome do responsável por receber o pedido:</span> {order.customerInfo.responsibleName}</p>
-              <p className="text-sm"><span className="font-medium">Nome:</span> {order.customerInfo.barbershopName}</p>
               <p className="text-sm"><span className="font-medium">Email:</span> {order.customerInfo.email}</p>
               <p className="text-sm"><span className="font-medium">Telefone:</span> {order.customerInfo.phone}</p>
-              <p className="text-sm"><span className="font-medium">Endereço:</span> {order.customerInfo.address}</p>
+              <p className="text-sm"><span className="font-medium">Endereço:</span> {order.customerInfo.address} {order.customerInfo.complement ? `- ${order.customerInfo.complement}` : ''}</p>
+              {order.customerInfo.orderNotes && (
+                <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-yellow-800 text-sm">
+                   <span className="font-medium block mb-1">Observações do Cliente:</span>
+                   {order.customerInfo.orderNotes}
+                </div>
+              )}
             </div>
             <div>
               <h3 className="font-semibold mb-2">Resumo</h3>
