@@ -43,8 +43,13 @@ import { toast } from 'sonner';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { CategorySelectionModal } from './CategorySelectionModal';
+import { Card, CardContent } from '@/components/ui/card';
 
-export const AdminProducts = () => {
+interface AdminProductsProps {
+  isMobile?: boolean;
+}
+
+export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
   const queryClient = useQueryClient();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
@@ -247,72 +252,148 @@ export const AdminProducts = () => {
       </div>
 
       <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[80px]">Imagem</TableHead>
-              <TableHead>Nome / SKU</TableHead>
-              <TableHead>Categoria</TableHead>
-              <TableHead>Preço</TableHead>
-              <TableHead>Estoque</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Ações</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
+        {isMobile ? (
+          <div className="space-y-3 p-3 bg-muted/20">
             {filteredProducts?.map((product) => (
-              <TableRow key={product.id}>
-                <TableCell>
-                  <div className="h-10 w-10 rounded-md overflow-hidden bg-muted flex items-center justify-center">
-                    {product.image_url ? (
-                      <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
-                    ) : (
-                      <ImageIcon className="h-5 w-5 text-muted-foreground" />
-                    )}
+              <Card key={product.id} className="overflow-hidden bg-card text-card-foreground shadow-sm">
+                <CardContent className="p-4">
+                  <div className="flex gap-4 mb-4">
+                    <div className="h-16 w-16 rounded-md overflow-hidden bg-muted flex items-center justify-center shrink-0">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <ImageIcon className="h-8 w-8 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="flex flex-col justify-center min-w-0">
+                      <span className="font-semibold text-sm line-clamp-2">{product.name}</span>
+                      {product.sku && <span className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</span>}
+                    </div>
                   </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-medium">{product.name}</span>
-                    {product.sku && <span className="text-xs text-muted-foreground">SKU: {product.sku}</span>}
+                  
+                  <div className="grid grid-cols-2 gap-4 border-t pt-3">
+                    {/* Left Column */}
+                    <div className="flex flex-col gap-3">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase text-muted-foreground font-bold">Categoria</span>
+                        <span className="inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold w-fit border-transparent bg-secondary text-secondary-foreground">
+                          {product.category}
+                        </span>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[10px] uppercase text-muted-foreground font-bold">Estoque</span>
+                        <span className="text-sm">{product.stock} un.</span>
+                      </div>
+                    </div>
+                    
+                    {/* Right Column */}
+                    <div className="flex flex-col gap-3 items-end text-right">
+                      <div className="flex flex-col items-end">
+                        <span className="text-[10px] uppercase text-muted-foreground font-bold">Preço</span>
+                        <span className="text-sm font-semibold text-green-600">R$ {product.price.toFixed(2)}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-3 mt-1">
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+                            onClick={() => setProductToDelete(product.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                         <Switch
+                          checked={product.active}
+                          onCheckedChange={(checked) => toggleStatusMutation.mutate({ id: product.id, active: checked })}
+                          className="scale-75 origin-right"
+                        />
+                        <div className="flex gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 w-8 p-0"
+                            onClick={() => openEditModal(product)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </TableCell>
-                <TableCell>
-                  <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
-                    {product.category}
-                  </span>
-                </TableCell>
-                <TableCell>R$ {product.price.toFixed(2)}</TableCell>
-                <TableCell>{product.stock}</TableCell>
-                <TableCell>
-                  <Switch
-                    checked={product.active}
-                    onCheckedChange={(checked) => toggleStatusMutation.mutate({ id: product.id, active: checked })}
-                  />
-                </TableCell>
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => openEditModal(product)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="text-destructive hover:text-destructive"
-                      onClick={() => setProductToDelete(product.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
+                </CardContent>
+              </Card>
             ))}
-          </TableBody>
-        </Table>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[80px]">Imagem</TableHead>
+                <TableHead>Nome / SKU</TableHead>
+                <TableHead>Categoria</TableHead>
+                <TableHead>Preço</TableHead>
+                <TableHead>Estoque</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredProducts?.map((product) => (
+                <TableRow key={product.id}>
+                  <TableCell>
+                    <div className="h-10 w-10 rounded-md overflow-hidden bg-muted flex items-center justify-center">
+                      {product.image_url ? (
+                        <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <ImageIcon className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col">
+                      <span className="font-medium">{product.name}</span>
+                      {product.sku && <span className="text-xs text-muted-foreground">SKU: {product.sku}</span>}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80">
+                      {product.category}
+                    </span>
+                  </TableCell>
+                  <TableCell>R$ {product.price.toFixed(2)}</TableCell>
+                  <TableCell>{product.stock}</TableCell>
+                  <TableCell>
+                    <Switch
+                      checked={product.active}
+                      onCheckedChange={(checked) => toggleStatusMutation.mutate({ id: product.id, active: checked })}
+                    />
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditModal(product)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => setProductToDelete(product.id)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>

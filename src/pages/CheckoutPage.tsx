@@ -23,8 +23,9 @@ import pixIcon from '@/assets/pixicon.png';
 import creditCardIcon from '@/assets/creditcardicon.png';
 import shopIcon from '@/assets/loja.png';
 import truckIcon from '@/assets/caminhao.png';
+import { supabase } from '@/lib/supabase';
 
-const WHATSAPP_NUMBER = '5511947197497';
+const DEFAULT_WHATSAPP_NUMBER = '5535991154125';
 
 const formSchema = z.object({
   responsibleName: z.string().trim().min(2, 'Nome deve ter pelo menos 2 caracteres').max(100, 'Nome muito longo'),
@@ -221,8 +222,16 @@ ${itemsList}
       };
       addOrder(order);
 
+      const { data: storeSettings } = await supabase
+        .from('store_settings')
+        .select('whatsapp_number')
+        .eq('store', 'docimdagringa')
+        .single();
+        
+      const whatsappNumber = storeSettings?.whatsapp_number || DEFAULT_WHATSAPP_NUMBER;
+
       const encodedMessage = encodeURIComponent(message);
-      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
 
       // Clear cart and redirect
       clearCart();
@@ -245,7 +254,7 @@ ${itemsList}
   }
 
   return (
-    <div className="min-h-screen bg-background pb-32">
+    <div className="h-screen overflow-y-auto bg-background pb-32">
       <Header />
 
       <main className="container px-4 py-4">

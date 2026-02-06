@@ -125,115 +125,108 @@ export const ShippingRatesManager = ({ isOpen, onClose }: ShippingRatesManagerPr
     }
   };
 
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex justify-between items-center">
-            <span>Gerenciar Taxas de Frete</span>
-            {!isCreating && !editingRate && (
-              <Button size="sm" onClick={handleCreate} className="mr-8">
-                <Plus className="h-4 w-4 mr-2" />
-                Nova Taxa
-              </Button>
-            )}
-          </DialogTitle>
-        </DialogHeader>
+  if (!isOpen) return null;
 
-        <div className="py-4">
-          {(isCreating || editingRate) ? (
-            <div className="bg-muted/30 p-4 rounded-lg border">
-              <h3 className="font-semibold mb-4">
-                {isCreating ? 'Nova Taxa de Entrega' : 'Editar Taxa de Entrega'}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city">Cidade</Label>
-                  <Input
-                    id="city"
-                    value={formData.city || ''}
-                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                    placeholder="Ex: Extrema"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="neighborhood">Bairro</Label>
-                  <Input
-                    id="neighborhood"
-                    value={formData.neighborhood || ''}
-                    onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
-                    placeholder="Ex: Centro"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="price">Valor (R$)</Label>
-                  <div className="relative">
-                    <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                      id="price"
-                      type="number"
-                      step="0.01"
-                      className="pl-9"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                      placeholder="0.00"
-                    />
-                  </div>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2 mt-6">
-                <Button variant="outline" onClick={handleCancel}>Cancelar</Button>
-                <Button onClick={handleSave} disabled={updateMutation.isPending || createMutation.isPending}>
-                  <Save className="h-4 w-4 mr-2" />
-                  Salvar
-                </Button>
+  const content = (
+    <div className="py-4">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-semibold">Gerenciar Taxas de Frete</h2>
+        {!isCreating && !editingRate && (
+          <Button size="sm" onClick={handleCreate}>
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Taxa
+          </Button>
+        )}
+      </div>
+
+      {(isCreating || editingRate) ? (
+        <div className="bg-muted/30 p-4 rounded-lg border">
+          <h3 className="font-semibold mb-4">
+            {isCreating ? 'Nova Taxa de Entrega' : 'Editar Taxa de Entrega'}
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="city">Cidade</Label>
+              <Input
+                id="city"
+                value={formData.city || ''}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                placeholder="Ex: Extrema"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="neighborhood">Bairro</Label>
+              <Input
+                id="neighborhood"
+                value={formData.neighborhood || ''}
+                onChange={(e) => setFormData({ ...formData, neighborhood: e.target.value })}
+                placeholder="Ex: Centro"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="price">Valor (R$)</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  className="pl-9"
+                  value={formData.price}
+                  onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+                  placeholder="0.00"
+                />
               </div>
             </div>
+          </div>
+          <div className="flex justify-end gap-2 mt-6">
+            <Button variant="outline" onClick={handleCancel}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={updateMutation.isPending || createMutation.isPending}>
+              <Save className="h-4 w-4 mr-2" />
+              Salvar
+            </Button>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {isLoading ? (
+            <p className="text-center py-4">Carregando taxas...</p>
+          ) : rates?.length === 0 ? (
+            <p className="text-center py-8 text-muted-foreground">Nenhuma taxa cadastrada.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {isLoading ? (
-                <p className="text-center py-4">Carregando taxas...</p>
-              ) : rates?.length === 0 ? (
-                <p className="text-center py-8 text-muted-foreground">Nenhuma taxa cadastrada.</p>
-              ) : (
-                <div className="space-y-2">
-                  {rates?.map((rate) => (
-                    <Card key={rate.id} className="overflow-hidden">
-                      <CardContent className="p-4 flex items-center justify-between">
-                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 flex-1">
-                          <div className="flex items-center gap-2 min-w-[200px]">
-                            <MapPin className="h-4 w-4 text-primary shrink-0" />
-                            <div>
-                              <p className="font-medium">{rate.neighborhood}</p>
-                              <p className="text-xs text-muted-foreground">{rate.city} - {rate.state}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-semibold bg-secondary/50 px-2 py-1 rounded">
-                              R$ {rate.price.toFixed(2)}
-                            </span>
-                          </div>
+            <div className="space-y-2">
+              {rates?.map((rate) => (
+                <Card key={rate.id} className="overflow-hidden">
+                  <CardContent className="p-4 flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-8 flex-1">
+                      <div className="flex items-center gap-2 min-w-[200px]">
+                        <MapPin className="h-4 w-4 text-primary shrink-0" />
+                        <div>
+                          <p className="font-medium">{rate.neighborhood}</p>
+                          <p className="text-xs text-muted-foreground">{rate.city} - {rate.state}</p>
                         </div>
-                        <div className="flex gap-2 ml-4">
-                          <Button variant="ghost" size="icon" onClick={() => handleEdit(rate)}>
-                            <Pencil className="h-4 w-4 text-muted-foreground hover:text-primary" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleDelete(rate.id)}>
-                            <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold bg-secondary/50 px-2 py-1 rounded">
+                          R$ {rate.price.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      <Button variant="ghost" size="icon" onClick={() => handleEdit(rate)}>
+                        <Pencil className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                      </Button>
+                      <Button variant="ghost" size="icon" onClick={() => handleDelete(rate.id)}>
+                        <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
           )}
         </div>
-        <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Fechar</Button>
-        </DialogFooter>
-      </DialogContent>
+      )}
 
       <AlertDialog open={!!rateToDelete} onOpenChange={(open) => !open && setRateToDelete(null)}>
         <AlertDialogContent>
@@ -254,6 +247,12 @@ export const ShippingRatesManager = ({ isOpen, onClose }: ShippingRatesManagerPr
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </Dialog>
+    </div>
+  );
+
+  return (
+    <div className="w-full">
+      {content}
+    </div>
   );
 };

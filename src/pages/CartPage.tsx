@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, ArrowRight, Trash2, MessageCircle, Pencil, Truck, ShoppingCart } from 'lucide-react';
+import { ShoppingBag, ArrowRight, Trash2, MessageCircle, Pencil, Truck, ShoppingCart, Clock } from 'lucide-react';
 import { useCart } from '@/contexts/CartContext';
 import { CartItem } from '@/components/CartItem';
 import { Header } from '@/components/Header';
@@ -19,14 +19,36 @@ import {
 
 import { ShippingSelectionModal } from '@/components/ShippingSelectionModal';
 import { toast } from 'sonner';
+import { supabase } from '@/lib/supabase';
 
 const CartPage = () => {
   const navigate = useNavigate();
   const { items, getTotal, clearCart, shippingRate, setShippingRate } = useCart();
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
+  const [storeObservation, setStoreObservation] = useState<string | null>(null);
+  
   const total = getTotal();
-  const itemsSubtotal = items.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const itemsSubtotal = items.reduce((acc, item) => {
+      const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
+      const price = hasDiscount ? item.product.price * (1 - (item.product.discount_percentage! / 100)) : item.product.price;
+      return acc + price * item.quantity;
+  }, 0);
+
+  useEffect(() => {
+    const fetchStoreSettings = async () => {
+      const { data } = await supabase
+        .from('store_settings')
+        .select('observation')
+        .eq('store', 'docimdagringa')
+        .single();
+      
+      if (data && data.observation) {
+        setStoreObservation(data.observation);
+      }
+    };
+    fetchStoreSettings();
+  }, []);
 
   const handleClearCart = () => {
     clearCart();
@@ -78,12 +100,18 @@ const CartPage = () => {
               </div>
               <div className="space-y-4">
                 <div className="flex justify-between text-sm items-center">
+                  <span className="text-muted-foreground">Cupom de Desconto</span>
+                  <span className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-medium">
+                    Em Breve ...
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm items-center">
                   <span className="text-muted-foreground">Entrega</span>
                   <Button
                     variant="link"
                     className={`h-auto p-0 font-normal text-right flex items-center gap-1 ${shippingRate
                       ? 'px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors'
-                      : 'text-primary'
+                      : 'px-3 py-1.5 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors animate-pulse font-medium no-underline shadow-sm'
                       }`}
                     onClick={() => setIsShippingModalOpen(true)}
                   >
@@ -92,19 +120,19 @@ const CartPage = () => {
                       : "Selecionar Local de Entrega"}
                   </Button>
                 </div>
-                <div className="flex justify-between text-sm items-center">
-                  <span className="text-muted-foreground">Cupom de Desconto</span>
-                  <span className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary text-sm font-medium">
-                    Em Breve ...
-                  </span>
-                </div>
+                {storeObservation && (
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-muted/50 p-2 rounded-lg">
+                    <Clock className="h-3.5 w-3.5 shrink-0" />
+                    <span>{storeObservation}</span>
+                  </div>
+                )}
                 <div className="text-xs text-muted-foreground space-y-1">
                   <p className="flex items-center gap-1">
                     Em breve mais pontos de entrega! <Truck className="h-3.5 w-3.5" />
                   </p>
                   <p>
                     <a
-                      href="https://wa.me/5511947197497?text=Olá%2C%20gostaria%20de%20ver%20a%20possibilidade%20de%20um%20novo%20ponto%20de%20entrega."
+                      href="https://wa.me/5535991154125?text=Olá%2C%20gostaria%20de%20ver%20a%20possibilidade%20de%20um%20novo%20ponto%20de%20entrega."
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:text-blue-700 underline transition-colors"

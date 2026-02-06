@@ -37,7 +37,7 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md md:max-w-2xl">
+      <DialogContent className="sm:max-w-md md:max-w-2xl max-h-screen overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-xl">
             <CreditCard className="h-6 w-6 text-primary" />

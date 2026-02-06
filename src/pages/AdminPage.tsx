@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Lock, Package, Settings, ShoppingBag, Eye, EyeOff, Truck } from 'lucide-react';
+import { Lock, Package, Settings, ShoppingBag, Eye, EyeOff, Truck, ChevronRight } from 'lucide-react';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { supabase } from '@/lib/supabase';
 import { AdminOrders } from '@/components/AdminOrders';
 import { AdminProducts } from '@/components/AdminProducts';
 import { ShippingRatesManager } from '@/components/ShippingRatesManager';
+import { AdminSettings } from '@/components/AdminSettings';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const AdminPage = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,8 +20,12 @@ const AdminPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'dashboard' | 'products' | 'orders'>('dashboard');
-  const [isShippingManagerOpen, setIsShippingManagerOpen] = useState(false);
+  
+  // Desktop Tab State
+  const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'shipping' | 'settings'>('orders');
+  
+  // Mobile Modal State
+  const [activeMobileSection, setActiveMobileSection] = useState<'orders' | 'products' | 'shipping' | 'settings' | null>(null);
 
   useEffect(() => {
     // Check initial session
@@ -126,6 +132,31 @@ const AdminPage = () => {
     );
   }
 
+  const renderMobileModalContent = () => {
+    switch (activeMobileSection) {
+      case 'orders':
+        return <AdminOrders isMobile={true} />;
+      case 'products':
+        return <AdminProducts isMobile={true} />;
+      case 'shipping':
+        return <ShippingRatesManager isOpen={true} onClose={() => {}} />;
+      case 'settings':
+        return <AdminSettings />;
+      default:
+        return null;
+    }
+  };
+
+  const getMobileModalTitle = () => {
+    switch (activeMobileSection) {
+      case 'orders': return 'Pedidos';
+      case 'products': return 'Produtos';
+      case 'shipping': return 'Ajuste de Frete';
+      case 'settings': return 'Configurações';
+      default: return '';
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <Header />
@@ -145,81 +176,128 @@ const AdminPage = () => {
           </Button>
         </div>
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          <Button 
-            variant={activeTab === 'dashboard' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('dashboard')}
-          >
-            Dashboard
-          </Button>
-          <Button 
-            variant={activeTab === 'orders' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('orders')}
-          >
-            Pedidos
-          </Button>
-          <Button 
-            variant={activeTab === 'products' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('products')}
-          >
-            Produtos
-          </Button>
-          <Button 
-            variant="outline"
-            onClick={() => setIsShippingManagerOpen(true)}
-          >
-            <Truck className="h-4 w-4 mr-2" />
-            Ajuste de Frete
-          </Button>
+        {/* Desktop Tabs Layout (Hidden on Mobile) */}
+        <div className="hidden md:block">
+          <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+            <Button 
+              variant={activeTab === 'orders' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('orders')}
+            >
+              Pedidos
+            </Button>
+            <Button 
+              variant={activeTab === 'products' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('products')}
+            >
+              Produtos
+            </Button>
+            <Button 
+              variant={activeTab === 'shipping' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('shipping')}
+            >
+              Ajuste de Frete
+            </Button>
+            <Button 
+              variant={activeTab === 'settings' ? 'default' : 'outline'}
+              onClick={() => setActiveTab('settings')}
+            >
+              Configurações
+            </Button>
+          </div>
+
+          {activeTab === 'orders' && <AdminOrders />}
+          {activeTab === 'products' && <AdminProducts />}
+          {activeTab === 'shipping' && (
+            <ShippingRatesManager isOpen={true} onClose={() => {}} />
+          )}
+          {activeTab === 'settings' && <AdminSettings />}
         </div>
 
-        {activeTab === 'orders' && <AdminOrders />}
-
-        {activeTab === 'dashboard' && (
-          <div className="grid gap-4">
-            <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setActiveTab('products')}>
-              <div className="flex items-center gap-3 mb-3">
-                <Package className="h-5 w-5 text-primary" />
-                <h2 className="font-semibold text-foreground">Produtos</h2>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Gerencie o catálogo de produtos, preços e estoque.
-              </p>
-            </Card>
-
-            <Card className="p-4 cursor-pointer hover:bg-accent/50 transition-colors" onClick={() => setActiveTab('orders')}>
-              <div className="flex items-center gap-3 mb-3">
+        {/* Mobile List Layout (Hidden on Desktop) */}
+        <div className="md:hidden space-y-3">
+          <Card 
+            className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
+            onClick={() => setActiveMobileSection('orders')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-full">
                 <ShoppingBag className="h-5 w-5 text-primary" />
-                <h2 className="font-semibold text-foreground">Pedidos</h2>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Visualize e gerencie pedidos recebidos.
-              </p>
-            </Card>
+              <div>
+                <h3 className="font-semibold">Pedidos</h3>
+                <p className="text-xs text-muted-foreground">Gerenciar pedidos recebidos</p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </Card>
 
-            <Card className="p-4">
-              <div className="flex items-center gap-3 mb-3">
+          <Card 
+            className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
+            onClick={() => setActiveMobileSection('products')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-full">
+                <Package className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Produtos</h3>
+                <p className="text-xs text-muted-foreground">Catálogo e estoque</p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </Card>
+
+          <Card 
+            className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
+            onClick={() => setActiveMobileSection('shipping')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-full">
+                <Truck className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <h3 className="font-semibold">Ajuste de Frete</h3>
+                <p className="text-xs text-muted-foreground">Taxas e locais de entrega</p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </Card>
+
+          <Card 
+            className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
+            onClick={() => setActiveMobileSection('settings')}
+          >
+            <div className="flex items-center gap-3">
+              <div className="bg-primary/10 p-2 rounded-full">
                 <Settings className="h-5 w-5 text-primary" />
-                <h2 className="font-semibold text-foreground">Configurações</h2>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                Configure informações da loja e integrações.
-              </p>
-              <Button variant="outline" className="w-full" disabled>
-                Em breve
-              </Button>
-            </Card>
-          </div>
-        )}
+              <div>
+                <h3 className="font-semibold">Configurações</h3>
+                <p className="text-xs text-muted-foreground">Horários e preferências</p>
+              </div>
+            </div>
+            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+          </Card>
+        </div>
 
-        {activeTab === 'products' && (
-           <AdminProducts />
-        )}
+        {/* Mobile Full Screen Modal */}
+        <Dialog 
+          open={!!activeMobileSection} 
+          onOpenChange={(open) => !open && setActiveMobileSection(null)}
+        >
+          <DialogContent className="w-screen h-screen max-w-full m-0 rounded-none border-0 flex flex-col p-0 bg-background overflow-hidden">
+            <DialogHeader className="px-4 py-4 border-b shrink-0 flex flex-row items-center justify-between space-y-0">
+              <DialogTitle className="text-lg font-bold">
+                {getMobileModalTitle()}
+              </DialogTitle>
+              {/* Close button is automatically added by DialogContent, but we can style header better */}
+            </DialogHeader>
+            <div className="flex-1 overflow-y-auto p-4">
+              {renderMobileModalContent()}
+            </div>
+          </DialogContent>
+        </Dialog>
 
-        <ShippingRatesManager
-          isOpen={isShippingManagerOpen}
-          onClose={() => setIsShippingManagerOpen(false)}
-        />
       </main>
 
       <BottomNav />
