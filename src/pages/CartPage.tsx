@@ -6,6 +6,8 @@ import { CartItem } from '@/components/CartItem';
 import { Header } from '@/components/Header';
 import { BottomNav } from '@/components/BottomNav';
 import { Button } from '@/components/ui/button';
+import truckIcon from '@/assets/caminhao.png';
+import shopIcon from '@/assets/loja.png';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,8 +28,9 @@ const CartPage = () => {
   const { items, getTotal, clearCart, shippingRate, setShippingRate } = useCart();
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false);
   const [isShippingModalOpen, setIsShippingModalOpen] = useState(false);
+  const [deliveryMethod, setDeliveryMethod] = useState<'delivery' | 'pickup' | null>(null);
   const [storeObservation, setStoreObservation] = useState<string | null>(null);
-  
+
   const total = getTotal();
   const itemsSubtotal = items.reduce((acc, item) => {
       const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
@@ -35,6 +38,17 @@ const CartPage = () => {
       return acc + price * item.quantity;
   }, 0);
 
+  // Sync shipping rate with delivery method
+  useEffect(() => {
+    if (shippingRate) {
+      setDeliveryMethod('delivery');
+    }
+  }, [shippingRate]);
+
+  const handlePickupSelection = () => {
+    setDeliveryMethod('pickup');
+    setShippingRate(null); // Clear shipping rate when picking up
+  };
   useEffect(() => {
     const fetchStoreSettings = async () => {
       const { data } = await supabase
@@ -53,6 +67,20 @@ const CartPage = () => {
   const handleClearCart = () => {
     clearCart();
     setIsClearDialogOpen(false);
+  };
+
+  const handleCheckout = () => {
+    if (!deliveryMethod) {
+      toast.error('Por favor, selecione "Local de Entrega" ou "Buscar na Loja" para continuar.');
+      return;
+    }
+    
+    if (deliveryMethod === 'delivery' && !shippingRate) {
+        toast.error('Por favor, selecione um bairro para entrega.');
+        return;
+    }
+
+    navigate('/checkout');
   };
 
   return (
@@ -105,20 +133,45 @@ const CartPage = () => {
                     Em Breve ...
                   </span>
                 </div>
-                <div className="flex justify-between text-sm items-center">
-                  <span className="text-muted-foreground">Entrega</span>
-                  <Button
-                    variant="link"
-                    className={`h-auto p-0 font-normal text-right flex items-center gap-1 ${shippingRate
-                      ? 'px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors'
-                      : 'px-3 py-1.5 rounded-full bg-red-500 text-white hover:bg-red-600 transition-colors animate-pulse font-medium no-underline shadow-sm'
+                <div className="space-y-2">
+                  <span className="text-sm text-muted-foreground block">Selecione o tipo de entrega:</span>
+                  <div className="flex justify-between text-sm items-center gap-2">
+                    <Button
+                      variant="outline"
+                      className={`flex-1 h-auto py-2 px-3 rounded-full text-xs border transition-all shadow-sm flex flex-row items-center justify-center gap-2 ${
+                        deliveryMethod === 'delivery'
+                          ? shippingRate 
+                            ? 'bg-primary/10 border-primary text-primary font-medium italic'
+                            : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600 animate-pulse font-medium italic'
+                          : !deliveryMethod
+                            ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600 animate-pulse font-medium italic'
+                            : 'border-muted-foreground/30 text-muted-foreground hover:border-primary/50 italic'
                       }`}
-                    onClick={() => setIsShippingModalOpen(true)}
-                  >
-                    {shippingRate
-                      ? `${shippingRate.neighborhood} - R$ ${shippingRate.price.toFixed(2)}`
-                      : "Selecionar Local de Entrega"}
-                  </Button>
+                      onClick={() => setIsShippingModalOpen(true)}
+                    >
+                      <img src={truckIcon} alt="Entrega" className={`h-5 w-5 ${deliveryMethod === 'delivery' || !deliveryMethod ? 'brightness-0 invert' : 'opacity-50'}`} />
+                      <span className="truncate">
+                        {deliveryMethod === 'delivery' && shippingRate
+                        ? `${shippingRate.neighborhood} - R$ ${shippingRate.price.toFixed(2)}`
+                        : "Entregar em Casa"}
+                      </span>
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className={`flex-1 h-auto py-2 px-3 rounded-full text-xs border transition-all shadow-sm flex flex-row items-center justify-center gap-2 ${
+                        deliveryMethod === 'pickup'
+                          ? 'bg-orange-500 text-white border-orange-500 font-medium italic'
+                          : !deliveryMethod 
+                              ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600 animate-pulse font-medium italic'
+                              : 'border-muted-foreground/30 text-muted-foreground hover:border-orange-500/50 italic'
+                      }`}
+                      onClick={handlePickupSelection}
+                    >
+                      <img src={shopIcon} alt="Loja" className={`h-5 w-5 ${deliveryMethod === 'pickup' || !deliveryMethod ? 'brightness-0 invert' : 'opacity-50'}`} />
+                      <span className="truncate">Buscar na Loja</span>
+                    </Button>
+                  </div>
                 </div>
                 {storeObservation && (
                   <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground bg-muted/50 p-2 rounded-lg">
@@ -154,13 +207,7 @@ const CartPage = () => {
 
             <Button
               className="w-full h-14 gradient-gold text-primary-foreground shadow-gold text-lg font-semibold mt-6"
-              onClick={() => {
-                if (!shippingRate) {
-                  toast.error('Por favor selecione um local de entrega!');
-                  return;
-                }
-                navigate('/checkout');
-              }}
+              onClick={handleCheckout}
             >
               Finalizar Pedido
               <ArrowRight className="h-5 w-5 ml-2" />

@@ -431,29 +431,33 @@ ${itemsList}
             </div>
           </Button>
 
-          <Button
-            type="button"
-            onClick={() => handlePaymentMethodClick('Entrega')}
-            className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white shadow-md text-lg font-semibold flex items-center justify-start px-6 gap-4"
-          >
-            <img src={truckIcon} alt="Entrega" className="h-8 w-8 brightness-0 invert flex-shrink-0" />
-            <div className="flex flex-col items-start leading-tight">
-              <span>Pagar na Entrega</span>
-              <span className="text-sm opacity-90 italic font-normal">(Cartão ou Dinheiro)</span>
-            </div>
-          </Button>
+          {shippingRate && (
+            <Button
+              type="button"
+              onClick={() => handlePaymentMethodClick('Entrega')}
+              className="w-full h-16 bg-blue-600 hover:bg-blue-700 text-white shadow-md text-lg font-semibold flex items-center justify-start px-6 gap-4"
+            >
+              <img src={truckIcon} alt="Entrega" className="h-8 w-8 brightness-0 invert flex-shrink-0" />
+              <div className="flex flex-col items-start leading-tight">
+                <span>Pagar na Entrega</span>
+                <span className="text-sm opacity-90 italic font-normal">(Cartão ou Dinheiro)</span>
+              </div>
+            </Button>
+          )}
 
-          <Button
-            type="button"
-            onClick={() => handlePaymentMethodClick('Loja')}
-            className="w-full h-16 bg-orange-500 hover:bg-orange-600 text-white shadow-md text-lg font-semibold flex items-center justify-start px-6 gap-4"
-          >
-            <img src={shopIcon} alt="Loja" className="h-8 w-8 brightness-0 invert flex-shrink-0" />
-            <div className="flex flex-col items-start leading-tight">
-              <span>Buscar e Pagar na Loja</span>
-              <span className="text-sm opacity-90 italic font-normal">(Cartão ou Dinheiro)</span>
-            </div>
-          </Button>
+          {!shippingRate && (
+            <Button
+              type="button"
+              onClick={() => handlePaymentMethodClick('Loja')}
+              className="w-full h-16 bg-orange-500 hover:bg-orange-600 text-white shadow-md text-lg font-semibold flex items-center justify-start px-6 gap-4"
+            >
+              <img src={shopIcon} alt="Loja" className="h-8 w-8 brightness-0 invert flex-shrink-0" />
+              <div className="flex flex-col items-start leading-tight">
+                <span>Buscar e Pagar na Loja</span>
+                <span className="text-sm opacity-90 italic font-normal">(Cartão ou Dinheiro)</span>
+              </div>
+            </Button>
+          )}
         </div>
       </main>
 
