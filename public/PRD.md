@@ -4,10 +4,10 @@
 **Status:** Draft
 
 ## 1. Product Overview
-Trezentos Connect is an e-commerce platform for barbershops that enables shops to list and sell grooming products online. Built with React + TypeScript and backed by Supabase (Postgres, Auth, Storage, Realtime), the product provides a product catalog with categories, a shopping cart, a WhatsApp-based checkout flow, order management for customers, and an admin dashboard for product and order operations.
+Docim da Gringa is an e-commerce platform for imported and national sweets. Built with React + TypeScript and backed by Supabase (Postgres, Auth, Storage, Realtime), the product provides a product catalog with categories, a shopping cart, a WhatsApp-based checkout flow, order management for customers, and an admin dashboard for product and order operations.
 
 ## 2. Core Goals
-- Deliver an MVP e-commerce storefront for barbershop products with a clear product catalog and simple checkout flow (WhatsApp integration).
+- Deliver an MVP e-commerce storefront for sweets with a clear product catalog and simple checkout flow (WhatsApp integration).
 - Provide an admin dashboard (Supabase-authenticated) to manage products and orders without direct DB access.
 - Persist and surface order data reliably in Supabase, with real-time updates to clients where applicable.
 - Keep the deployment simple and secure (Vercel + environment variables) and use Supabase for server-side operations from scripts or backend processes.

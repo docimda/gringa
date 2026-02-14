@@ -20,10 +20,10 @@ const AdminPage = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  
+
   // Desktop Tab State
   const [activeTab, setActiveTab] = useState<'orders' | 'products' | 'shipping' | 'settings'>('orders');
-  
+
   // Mobile Modal State
   const [activeMobileSection, setActiveMobileSection] = useState<'orders' | 'products' | 'shipping' | 'settings' | null>(null);
 
@@ -46,7 +46,7 @@ const AdminPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -65,7 +65,7 @@ const AdminPage = () => {
     return (
       <div className="min-h-screen bg-background pb-24">
         <Header />
-        
+
         <main className="container px-4 py-4">
           <div className="flex flex-col items-center justify-center py-16">
             <Lock className="h-16 w-16 text-muted-foreground mb-4" />
@@ -139,7 +139,7 @@ const AdminPage = () => {
       case 'products':
         return <AdminProducts isMobile={true} />;
       case 'shipping':
-        return <ShippingRatesManager isOpen={true} onClose={() => {}} />;
+        return <ShippingRatesManager isOpen={true} onClose={() => { }} />;
       case 'settings':
         return <AdminSettings />;
       default:
@@ -160,7 +160,7 @@ const AdminPage = () => {
   return (
     <div className="min-h-screen bg-background pb-24">
       <Header />
-      
+
       <main className="container px-4 py-4">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-foreground">Painel Admin</h1>
@@ -179,25 +179,25 @@ const AdminPage = () => {
         {/* Desktop Tabs Layout (Hidden on Mobile) */}
         <div className="hidden md:block">
           <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-            <Button 
+            <Button
               variant={activeTab === 'orders' ? 'default' : 'outline'}
               onClick={() => setActiveTab('orders')}
             >
               Pedidos
             </Button>
-            <Button 
+            <Button
               variant={activeTab === 'products' ? 'default' : 'outline'}
               onClick={() => setActiveTab('products')}
             >
               Produtos
             </Button>
-            <Button 
+            <Button
               variant={activeTab === 'shipping' ? 'default' : 'outline'}
               onClick={() => setActiveTab('shipping')}
             >
               Ajuste de Frete
             </Button>
-            <Button 
+            <Button
               variant={activeTab === 'settings' ? 'default' : 'outline'}
               onClick={() => setActiveTab('settings')}
             >
@@ -208,14 +208,14 @@ const AdminPage = () => {
           {activeTab === 'orders' && <AdminOrders />}
           {activeTab === 'products' && <AdminProducts />}
           {activeTab === 'shipping' && (
-            <ShippingRatesManager isOpen={true} onClose={() => {}} />
+            <ShippingRatesManager isOpen={true} onClose={() => { }} />
           )}
           {activeTab === 'settings' && <AdminSettings />}
         </div>
 
         {/* Mobile List Layout (Hidden on Desktop) */}
         <div className="md:hidden space-y-3">
-          <Card 
+          <Card
             className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
             onClick={() => setActiveMobileSection('orders')}
           >
@@ -231,7 +231,7 @@ const AdminPage = () => {
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </Card>
 
-          <Card 
+          <Card
             className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
             onClick={() => setActiveMobileSection('products')}
           >
@@ -247,7 +247,7 @@ const AdminPage = () => {
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </Card>
 
-          <Card 
+          <Card
             className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
             onClick={() => setActiveMobileSection('shipping')}
           >
@@ -263,7 +263,7 @@ const AdminPage = () => {
             <ChevronRight className="h-5 w-5 text-muted-foreground" />
           </Card>
 
-          <Card 
+          <Card
             className="p-4 flex items-center justify-between cursor-pointer hover:bg-accent/50 active:bg-accent transition-colors"
             onClick={() => setActiveMobileSection('settings')}
           >
@@ -281,8 +281,8 @@ const AdminPage = () => {
         </div>
 
         {/* Mobile Full Screen Modal */}
-        <Dialog 
-          open={!!activeMobileSection} 
+        <Dialog
+          open={!!activeMobileSection}
           onOpenChange={(open) => !open && setActiveMobileSection(null)}
         >
           <DialogContent className="w-screen h-screen max-w-full m-0 rounded-none border-0 flex flex-col p-0 bg-background overflow-hidden">

@@ -48,11 +48,11 @@ const OrdersPage = () => {
             });
 
           setSyncedOrders(validOrders);
-          
+
           // IMPORTANTE: Atualiza o cache global (localStorage) removendo os inválidos
           // Isso evita que, ao dar refresh, os pedidos deletados voltem
           if (validOrders.length !== localOrders.length) {
-             syncLocalOrders(validOrders);
+            syncLocalOrders(validOrders);
           }
         } else {
           // Se não encontrou NENHUM pedido no banco (todos deletados), limpa a lista visual E O CACHE
@@ -167,7 +167,7 @@ const OrdersPage = () => {
 
                 <div className="border-t border-border pt-3 flex justify-between items-center">
                   <span className="text-sm text-muted-foreground">
-                    {order.customerInfo.barbershopName}
+                    {/* Customer Info */}
                   </span>
                   <span className="font-bold text-primary">
                     R$ {order.total.toFixed(2)}

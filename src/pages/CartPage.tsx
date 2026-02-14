@@ -33,9 +33,9 @@ const CartPage = () => {
 
   const total = getTotal();
   const itemsSubtotal = items.reduce((acc, item) => {
-      const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
-      const price = hasDiscount ? item.product.price * (1 - (item.product.discount_percentage! / 100)) : item.product.price;
-      return acc + price * item.quantity;
+    const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
+    const price = hasDiscount ? item.product.price * (1 - (item.product.discount_percentage! / 100)) : item.product.price;
+    return acc + price * item.quantity;
   }, 0);
 
   // Sync shipping rate with delivery method
@@ -56,7 +56,7 @@ const CartPage = () => {
         .select('observation')
         .eq('store', 'docimdagringa')
         .single();
-      
+
       if (data && data.observation) {
         setStoreObservation(data.observation);
       }
@@ -74,10 +74,10 @@ const CartPage = () => {
       toast.error('Por favor, selecione "Local de Entrega" ou "Buscar na Loja" para continuar.');
       return;
     }
-    
+
     if (deliveryMethod === 'delivery' && !shippingRate) {
-        toast.error('Por favor, selecione um bairro para entrega.');
-        return;
+      toast.error('Por favor, selecione um bairro para entrega.');
+      return;
     }
 
     navigate('/checkout');
@@ -138,34 +138,32 @@ const CartPage = () => {
                   <div className="flex justify-between text-sm items-center gap-2">
                     <Button
                       variant="outline"
-                      className={`flex-1 h-auto py-2 px-3 rounded-full text-xs border transition-all shadow-sm flex flex-row items-center justify-center gap-2 ${
-                        deliveryMethod === 'delivery'
-                          ? shippingRate 
+                      className={`flex-1 h-auto py-2 px-3 rounded-full text-xs border transition-all shadow-sm flex flex-row items-center justify-center gap-2 ${deliveryMethod === 'delivery'
+                          ? shippingRate
                             ? 'bg-primary/10 border-primary text-primary font-medium italic'
                             : 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600 animate-pulse font-medium italic'
                           : !deliveryMethod
                             ? 'bg-blue-500 text-white border-blue-500 hover:bg-blue-600 animate-pulse font-medium italic'
                             : 'border-muted-foreground/30 text-muted-foreground hover:border-primary/50 italic'
-                      }`}
+                        }`}
                       onClick={() => setIsShippingModalOpen(true)}
                     >
                       <img src={truckIcon} alt="Entrega" className={`h-5 w-5 ${deliveryMethod === 'delivery' || !deliveryMethod ? 'brightness-0 invert' : 'opacity-50'}`} />
                       <span className="truncate">
                         {deliveryMethod === 'delivery' && shippingRate
-                        ? `${shippingRate.neighborhood} - R$ ${shippingRate.price.toFixed(2)}`
-                        : "Entregar em Casa"}
+                          ? `${shippingRate.neighborhood} - R$ ${shippingRate.price.toFixed(2)}`
+                          : "Entregar em Casa"}
                       </span>
                     </Button>
 
                     <Button
                       variant="outline"
-                      className={`flex-1 h-auto py-2 px-3 rounded-full text-xs border transition-all shadow-sm flex flex-row items-center justify-center gap-2 ${
-                        deliveryMethod === 'pickup'
+                      className={`flex-1 h-auto py-2 px-3 rounded-full text-xs border transition-all shadow-sm flex flex-row items-center justify-center gap-2 ${deliveryMethod === 'pickup'
                           ? 'bg-orange-500 text-white border-orange-500 font-medium italic'
-                          : !deliveryMethod 
-                              ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600 animate-pulse font-medium italic'
-                              : 'border-muted-foreground/30 text-muted-foreground hover:border-orange-500/50 italic'
-                      }`}
+                          : !deliveryMethod
+                            ? 'bg-orange-500 text-white border-orange-500 hover:bg-orange-600 animate-pulse font-medium italic'
+                            : 'border-muted-foreground/30 text-muted-foreground hover:border-orange-500/50 italic'
+                        }`}
                       onClick={handlePickupSelection}
                     >
                       <img src={shopIcon} alt="Loja" className={`h-5 w-5 ${deliveryMethod === 'pickup' || !deliveryMethod ? 'brightness-0 invert' : 'opacity-50'}`} />

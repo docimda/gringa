@@ -37,13 +37,13 @@ export function AdminSettings() {
     } else if (data) {
       setSettings(data);
     } else {
-        // Fallback default
-        setSettings({
-            id: '',
-            observation: '',
-            whatsapp_number: '5535991154125',
-            is_open_manually: true
-        });
+      // Fallback default
+      setSettings({
+        id: '',
+        observation: '',
+        whatsapp_number: '5535991154125',
+        is_open_manually: true
+      });
     }
     setLoading(false);
   };
@@ -117,15 +117,15 @@ export function AdminSettings() {
           </div>
 
           <div className="pt-4 flex justify-end">
-            <Button 
-                onClick={handleSave} 
-                disabled={saving}
-                className="gradient-gold text-primary-foreground shadow-gold"
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="gradient-gold text-primary-foreground shadow-gold"
             >
               {saving ? 'Salvando...' : (
                 <>
-                    <Save className="h-4 w-4 mr-2" />
-                    Salvar Alterações
+                  <Save className="h-4 w-4 mr-2" />
+                  Salvar Alterações
                 </>
               )}
             </Button>

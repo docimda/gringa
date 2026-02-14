@@ -1,7 +1,6 @@
+# Docim da Gringa
 
-# Trezentos Connect
-
-E-commerce platform for barbershops, built with React, TypeScript, and Supabase.
+Loja de doces importados e nacionais. Built with React, TypeScript, and Supabase.
 
 ## Features
 
@@ -48,7 +47,7 @@ E-commerce platform for barbershops, built with React, TypeScript, and Supabase.
    ```bash
    node scripts/create-admin.js
    ```
-   Default credentials in script: `admin@trezentos.com` / `mental300andre`
+   Default credentials in script: `admin@docimdagringa.com` / `mental300andre`
 
 6. **Run Development Server:**
    ```bash

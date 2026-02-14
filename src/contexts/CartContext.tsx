@@ -23,10 +23,10 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
-const CART_STORAGE_KEY = 'trezentos_cart';
-const CUSTOMER_STORAGE_KEY = 'trezentos_customer';
-const ORDERS_STORAGE_KEY = 'trezentos_orders';
-const SHIPPING_STORAGE_KEY = 'trezentos_shipping';
+const CART_STORAGE_KEY = 'docim_cart';
+const CUSTOMER_STORAGE_KEY = 'docim_customer';
+const ORDERS_STORAGE_KEY = 'docim_orders';
+const SHIPPING_STORAGE_KEY = 'docim_shipping';
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {

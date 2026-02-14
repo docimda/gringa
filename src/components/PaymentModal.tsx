@@ -58,7 +58,7 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
             <div className="p-4 bg-white rounded-xl shadow-sm border">
               <QRCodeSVG value={pixCode} size={200} level="M" />
             </div>
-            
+
             <p className="text-sm text-center text-muted-foreground md:hidden">
               Escaneie o QR Code acima ou copie o código abaixo:
             </p>
@@ -71,7 +71,7 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
             </p>
 
             <div className="relative">
-              <textarea 
+              <textarea
                 className="w-full h-24 p-3 pr-12 text-xs bg-muted/50 rounded-md border resize-none font-mono focus:outline-none focus:ring-1 focus:ring-primary"
                 readOnly
                 value={pixCode}
@@ -89,11 +89,11 @@ export const PaymentModal = ({ isOpen, onClose, pixCode, total, onConfirm, isSub
                 )}
               </Button>
             </div>
-            
-            <Button 
-              type="button" 
+
+            <Button
+              type="button"
               variant="outline"
-              className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700" 
+              className="w-full text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700"
               onClick={handleCopy}
             >
               {copied ? (

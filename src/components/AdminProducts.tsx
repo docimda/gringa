@@ -84,10 +84,10 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
   // Obter lista única de categorias existentes
   const availableCategories = useMemo(() => {
     if (!products) return [];
-    
+
     // Apenas categorias que realmente têm produtos
     const productCategories = new Set(products.map(p => p.category));
-    
+
     // Converter para array e ordenar
     return Array.from(productCategories).sort();
   }, [products]);
@@ -191,7 +191,7 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validação básica
     if (!formData.name || !formData.price || !formData.category || !formData.image_url) {
       toast.error('Preencha os campos obrigatórios');
@@ -226,7 +226,7 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
     }
   };
 
-  const filteredProducts = products?.filter(product => 
+  const filteredProducts = products?.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.sku?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -270,7 +270,7 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                       {product.sku && <span className="text-xs text-muted-foreground mt-1">SKU: {product.sku}</span>}
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4 border-t pt-3">
                     {/* Left Column */}
                     <div className="flex flex-col gap-3">
@@ -285,14 +285,14 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                         <span className="text-sm">{product.stock} un.</span>
                       </div>
                     </div>
-                    
+
                     {/* Right Column */}
                     <div className="flex flex-col gap-3 items-end text-right">
                       <div className="flex flex-col items-end">
                         <span className="text-[10px] uppercase text-muted-foreground font-bold">Preço</span>
                         <span className="text-sm font-semibold text-green-600">R$ {product.price.toFixed(2)}</span>
                       </div>
-                      
+
                       <div className="flex items-center gap-3 mt-1">
                         <div className="flex gap-1">
                           <Button
@@ -304,7 +304,7 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                             <Trash2 className="h-4 w-4" />
                           </Button>
                         </div>
-                         <Switch
+                        <Switch
                           checked={product.active}
                           onCheckedChange={(checked) => toggleStatusMutation.mutate({ id: product.id, active: checked })}
                           className="scale-75 origin-right"
@@ -401,7 +401,7 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
           <DialogHeader>
             <DialogTitle>{editingProduct ? 'Editar Produto' : 'Novo Produto'}</DialogTitle>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
@@ -443,7 +443,7 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="category">Categoria *</Label>
-                <div 
+                <div
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer hover:bg-accent/50 items-center justify-between"
                   onClick={() => setIsCategoryModalOpen(true)}
                 >
@@ -462,10 +462,10 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                   value={formData.stockInput}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setFormData({ 
-                      ...formData, 
+                    setFormData({
+                      ...formData,
                       stockInput: value,
-                      stock: value === '' ? 0 : parseInt(value) || 0 
+                      stock: value === '' ? 0 : parseInt(value) || 0
                     });
                   }}
                 />
@@ -483,10 +483,10 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                   value={formData.priceInput}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setFormData({ 
-                      ...formData, 
+                    setFormData({
+                      ...formData,
                       priceInput: value,
-                      price: value === '' ? 0 : parseFloat(value) || 0 
+                      price: value === '' ? 0 : parseFloat(value) || 0
                     });
                   }}
                   required
@@ -511,10 +511,10 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                   value={formData.discountInput}
                   onChange={(e) => {
                     const value = e.target.value;
-                    setFormData({ 
-                      ...formData, 
+                    setFormData({
+                      ...formData,
                       discountInput: value,
-                      discount_percentage: value === '' ? 0 : parseFloat(value) || 0 
+                      discount_percentage: value === '' ? 0 : parseFloat(value) || 0
                     });
                   }}
                   placeholder="0"
@@ -547,11 +547,11 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                   </div>
                   {formData.image_url && (
                     <div className="h-16 w-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
-                      <img 
-                        src={formData.image_url} 
-                        alt="Preview Principal" 
+                      <img
+                        src={formData.image_url}
+                        alt="Preview Principal"
                         className="h-full w-full object-cover"
-                        onError={(e) => (e.currentTarget.style.display = 'none')} 
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
                       />
                     </div>
                   )}
@@ -572,11 +572,11 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                   </div>
                   {formData.image_url_2 && (
                     <div className="h-16 w-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
-                      <img 
-                        src={formData.image_url_2} 
-                        alt="Preview 2" 
+                      <img
+                        src={formData.image_url_2}
+                        alt="Preview 2"
                         className="h-full w-full object-cover"
-                        onError={(e) => (e.currentTarget.style.display = 'none')} 
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
                       />
                     </div>
                   )}
@@ -597,17 +597,17 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
                   </div>
                   {formData.image_url_3 && (
                     <div className="h-16 w-16 rounded border bg-muted flex-shrink-0 overflow-hidden">
-                      <img 
-                        src={formData.image_url_3} 
-                        alt="Preview 3" 
+                      <img
+                        src={formData.image_url_3}
+                        alt="Preview 3"
                         className="h-full w-full object-cover"
-                        onError={(e) => (e.currentTarget.style.display = 'none')} 
+                        onError={(e) => (e.currentTarget.style.display = 'none')}
                       />
                     </div>
                   )}
                 </div>
               </div>
-              
+
               <p className="text-xs text-muted-foreground">
                 Cole o link direto da imagem (hospedada externamente).
               </p>
@@ -655,7 +655,7 @@ export const AdminProducts = ({ isMobile = false }: AdminProductsProps) => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

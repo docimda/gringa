@@ -6,7 +6,7 @@ const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE;
 
 const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-const adminEmail = 'admin@trezentos.com';
+const adminEmail = 'admin@docimdagringa.com';
 const adminPassword = process.env.ADMIN_PASSWORD || 'mental300andre';
 
 async function createAdmin() {

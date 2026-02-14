@@ -52,7 +52,7 @@ const CheckoutPage = () => {
   const [isChangeModalOpen, setIsChangeModalOpen] = useState(false);
   const [pendingPaymentMethod, setPendingPaymentMethod] = useState<string | null>(null);
   const [pixCode, setPixCode] = useState('');
-  
+
   const total = getTotal();
   const itemsSubtotal = items.reduce((acc, item) => {
     const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
@@ -66,7 +66,7 @@ const CheckoutPage = () => {
     const chavePix = '63813434000120'; // CNPJ sem pontuação
     const nome = 'GRINGA STORE';
     const cidade = 'SAO PAULO';
-    
+
     const code = gerarPix({
       chave: chavePix,
       nome,
@@ -103,7 +103,7 @@ const CheckoutPage = () => {
       .map((item) => {
         const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
         const price = hasDiscount ? item.product.price * (1 - (item.product.discount_percentage! / 100)) : item.product.price;
-        
+
         let itemString = `- ${item.product.name} (Qtd: ${item.quantity}) - R$ ${(price * item.quantity).toFixed(2)}`;
         if (hasDiscount) {
           itemString += ` (Desconto de ${item.product.discount_percentage}%)`;
@@ -111,7 +111,7 @@ const CheckoutPage = () => {
         return itemString;
       })
       .join('\n');
-    
+
     let paymentText = paymentMethod;
     if (paymentMethod === 'PIX') {
       paymentText += ' (Cliente enviará o comprovante)';
@@ -227,7 +227,7 @@ ${itemsList}
         .select('whatsapp_number')
         .eq('store', 'docimdagringa')
         .single();
-        
+
       const whatsappNumber = storeSettings?.whatsapp_number || DEFAULT_WHATSAPP_NUMBER;
 
       const encodedMessage = encodeURIComponent(message);
@@ -276,7 +276,7 @@ ${itemsList}
             {items.map((item) => {
               const hasDiscount = !!(item.product.discount_percentage && item.product.discount_percentage > 0 && (!item.product.discount_expires_at || new Date(item.product.discount_expires_at) > new Date()));
               const price = hasDiscount ? item.product.price * (1 - (item.product.discount_percentage! / 100)) : item.product.price;
-              
+
               return (
                 <div key={item.product.id} className="flex justify-between items-start">
                   <div className="flex flex-col">
@@ -284,9 +284,9 @@ ${itemsList}
                       {item.quantity}x {item.product.name}
                     </span>
                     {hasDiscount && (
-                       <span className="text-[10px] text-green-600 font-medium">
-                         Desconto de {item.product.discount_percentage}% aplicado
-                       </span>
+                      <span className="text-[10px] text-green-600 font-medium">
+                        Desconto de {item.product.discount_percentage}% aplicado
+                      </span>
                     )}
                   </div>
                   <div className="flex flex-col items-end">
@@ -380,7 +380,7 @@ ${itemsList}
                   <FormItem>
                     <FormLabel>Telefone</FormLabel>
                     <FormControl>
-                      <Input placeholder="+353 XX XXX XXXX" {...field} />
+                      <Input placeholder="(11) 91234-5678" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -467,8 +467,8 @@ ${itemsList}
         pixCode={pixCode}
         total={total}
         onConfirm={() => {
-           setIsPaymentModalOpen(false);
-           form.handleSubmit((data) => onSubmit(data, 'PIX'))();
+          setIsPaymentModalOpen(false);
+          form.handleSubmit((data) => onSubmit(data, 'PIX'))();
         }}
         isSubmitting={isSubmitting}
       />
