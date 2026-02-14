@@ -17,7 +17,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const { items, addItem, updateQuantity, removeItem } = useCart();
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  
+
   const cartItem = items.find((item) => item.product.id === product.id);
   const quantity = cartItem?.quantity || 0;
 
@@ -69,11 +69,11 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <>
       <Card className={cn(
-        'group overflow-hidden transition-all duration-300',
+        'group overflow-hidden transition-all duration-300 h-full flex flex-col',
         'hover:shadow-gold hover:border-primary/30',
         !product.active && 'opacity-60'
       )}>
-        <div 
+        <div
           className="relative aspect-square overflow-hidden bg-muted cursor-pointer"
           onClick={() => setIsImageModalOpen(true)}
         >
@@ -106,21 +106,23 @@ export function ProductCard({ product }: ProductCardProps) {
             </>
           )}
         </div>
-        
-        <div className="p-3 space-y-2 flex flex-col h-full">
-          <div>
-            <div className="flex justify-between items-start gap-2">
-              <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-tight mb-1">
-                {product.name}
-              </h3>
+
+        <div className="p-3 flex flex-col flex-1">
+          <div className="space-y-2 mb-2">
+            <div>
+              <div className="flex justify-between items-start gap-2">
+                <h3 className="font-semibold text-sm text-foreground line-clamp-2 leading-tight mb-1">
+                  {product.name}
+                </h3>
+              </div>
+              {product.description && (
+                <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2.5em]">
+                  {product.description}
+                </p>
+              )}
             </div>
-            {product.description && (
-              <p className="text-xs text-muted-foreground line-clamp-2 min-h-[2.5em]">
-                {product.description}
-              </p>
-            )}
           </div>
-          
+
           <div className="flex items-center justify-between gap-2 mt-auto pt-2">
             <div className="flex flex-col">
               {hasDiscount && (
@@ -132,9 +134,9 @@ export function ProductCard({ product }: ProductCardProps) {
                 R$ {discountedPrice.toFixed(2)}
               </span>
             </div>
-            
+
             {quantity > 0 ? (
-              <div className="flex items-center gap-1 bg-secondary rounded-lg p-1">
+              <div className="flex items-center gap-1 bg-secondary rounded-lg p-1 ml-auto">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -157,8 +159,7 @@ export function ProductCard({ product }: ProductCardProps) {
               </div>
             ) : (
               <Button
-                size="sm"
-                className="h-8 px-3 gap-1 gradient-gold text-primary-foreground shadow-gold flex-shrink-0"
+                className="inline-flex items-center justify-center whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary hover:bg-primary/90 rounded-md h-8 px-3 gap-1 gradient-gold text-primary-foreground shadow-gold flex-shrink-0"
                 onClick={handleAdd}
                 disabled={!product.active}
               >
@@ -182,7 +183,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 alt={`${product.name} - Imagem ${currentImageIndex + 1}`}
                 className="h-full w-full object-contain"
               />
-              
+
               {images.length > 1 && (
                 <>
                   <Button
@@ -207,7 +208,7 @@ export function ProductCard({ product }: ProductCardProps) {
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>
-                  
+
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1.5 bg-background/50 px-2 py-1 rounded-full">
                     {images.map((_, idx) => (
                       <div
